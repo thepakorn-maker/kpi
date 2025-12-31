@@ -1,0 +1,303 @@
+/* css/style.css */
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Sarabun', sans-serif;
+    background-color: #f9fafb;
+    color: #1f2937;
+    padding-bottom: 80px; /* สำหรับ Switch User ที่ล่างสุด */
+}
+
+/* Header ด้านบนสุด */
+.header {
+    background: #1e3a8a;
+    color: white;
+    padding: 0.5rem 1.0rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.header .version {
+    background: #22c55e;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-left: 8px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.header .version::after {
+    content: '\2713';
+    margin-left: 6px;
+    font-size: 16px;
+}
+
+.header .kpi {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+/* Navbar */
+.navbar {
+    background: #ffffff;
+    padding: 0.4rem 1.5rem;
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+	
+	
+}
+
+.navbar a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #4b5563;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 7px;
+    transition: all 0.2s;
+}
+
+.navbar a.active {
+    background: #1e3a8a;
+    color: white;
+}
+
+.navbar a:hover:not(.active) {
+    background: #f3f4f6;
+}
+
+.navbar .icon {
+    font-size: 28px;
+    margin-bottom: 4px;
+}
+
+/* การ์ดงานของแต่ละคน */
+.user-card {
+    background: #fefce8;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    position: relative;
+	awidth:99%;
+}
+
+.user-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.user-card-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.user-card-header .position {
+    font-size: 16px;
+    color: #6b7280;
+}
+
+.user-card-header .kpi-score {
+    font-size: 36px;
+    font-weight: 700;
+    color: #f59e0b;
+}
+
+.stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-box {
+    background: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    text-align: center;
+    flex: 1;
+}
+
+.stat-box .label {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.stat-box .number {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.stat-box.overdue .number {
+    color: #dc2626;
+}
+
+/* การ์ดงานแต่ละชิ้น */
+.job-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    border-left: 8px solid transparent;
+}
+
+.job-card.type1 { border-left-color: #dc2626; } /* Urgent */
+.job-card.type2 { border-left-color: #f97316; }
+.job-card.type3 { border-left-color: #eab308; } /* Important */
+.job-card.type4 { border-left-color: #3b82f6; }
+.job-card.type5 { border-left-color: #22c55e; } /* Mr. Problem */
+
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    
+}
+
+.job-id {
+    background: #e5e7eb;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.job-type {
+    background: #fef3c7;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+
+}
+.job-type { 
+amargin-left:12px;
+amargin-right:2px; 
+}
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+ .job-type { 
+  margin-left:12px;
+  margin-right:2px; 
+  }
+.target-date {
+	margin-left:auto;
+}
+}
+
+.job-type.type1 { background: #fee2e2; color: #dc2626; }
+
+.job-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0.5rem 0;
+}
+
+.job-given {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 1rem;
+}
+
+.job-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.target-date {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.overdue {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.due-today {
+    color: #dc2626;
+    font-weight: 700;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.btn-complete {
+    background: #22c55e;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-change {
+    background: #9ca3af;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: not-allowed;
+}
+
+.btn-change.enabled {
+    background: #3b82f6;
+    cursor: pointer;
+}
+
+/* Switch User มุมล่างขวา */
+.switch-user {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    font-size: 15px;
+    z-index: 1000;
+}
+
+.switch-user select {
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1e3a8a;
+    cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar {
+        justify-content: center;
+    }
+    .user-card {
+        margin: 1rem;
+    }
+}
