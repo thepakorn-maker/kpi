@@ -1,0 +1,49 @@
+<%@ Language="VBScript" %>
+<!-- #include file="conn.asp" -->
+<!-- #include file="auth_check.asp" -->
+<!-- #include file="functions.asp" -->
+<%
+If Not curIsManager Then Response.Redirect "dashboard.asp" : Response.End
+' ============================================================
+' add_problem_action.asp — POST: insert into ProblemTracking
+' Calls sp_AddProblem then redirects to problems.asp
+' ============================================================
+
+Dim userID      : userID      = CLng(Request.Form("UserID"))
+Dim category    : category    = Trim(Request.Form("Category"))
+Dim description : description = Trim(Request.Form("Description"))
+Dim points      : points      = CLng(Request.Form("Points"))
+
+If userID = 0 Or description = "" Then
+    Response.Redirect "add_problem.asp?err=" & Server.URLEncode("Person and description are required.")
+    Response.End
+End If
+
+Dim cmd
+Set cmd = Server.CreateObject("ADODB.Command")
+With cmd
+    .ActiveConnection = objConn
+    .CommandType      = 4       ' adCmdStoredProc
+    .CommandText      = DB_SCHEMA & "sp_AddProblem"
+    .Parameters.Append .CreateParameter("@UserID",      3,   1,    , userID)
+    .Parameters.Append .CreateParameter("@Category",    200, 1, 100, category)
+    .Parameters.Append .CreateParameter("@Description", 200, 1, 500, description)
+    .Parameters.Append .CreateParameter("@Points",      3,   1,    , points)
+    .Parameters.Append .CreateParameter("@ReportedBy",  3,   1,    , curRealUserID)
+End With
+
+On Error Resume Next
+cmd.Execute
+Dim spError : spError = Err.Description
+On Error GoTo 0
+Set cmd = Nothing
+objConn.Close : Set objConn = Nothing
+
+If spError <> "" Then
+    Response.Redirect "add_problem.asp?err=" & Server.URLEncode(spError)
+    Response.End
+End If
+
+Response.Redirect "problems.asp"
+Response.End
+%>

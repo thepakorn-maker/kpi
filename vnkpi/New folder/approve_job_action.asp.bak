@@ -1,0 +1,129 @@
+<%@ Language="VBScript" %>
+<!-- #include file="conn.asp" -->
+<!-- #include file="auth_check.asp" -->
+<!-- #include file="functions.asp" -->
+<%
+' ============================================================
+' approve_job_action.asp — POST handler: manager approves a job
+' Flow: validate  call sp_ApproveJob  show confirmation
+'
+' sp_ApproveJob handles:
+'   - Status = 'Completed', CompletedDate = TODAY
+'   - Late penalty applied to assignee's KPIScore + LateJobs
+'   - On-time: increments OnTimeJobs + Streak
+' ============================================================
+
+Dim jobID : jobID = CLng(Request.Form("JobID"))
+
+If jobID = 0 Then
+    Response.Redirect "approve_list.asp"
+    Response.End
+End If
+
+' -- Verify job exists, is Submitted, and was assigned BY current user --
+' Fetch details needed for the confirmation page
+Dim rs
+Set rs = objConn.Execute( _
+    "SELECT j.Title, j.TargetDate, j.SubmitDate, " & _
+    "       jt.PenaltyPerDay, at.Username AS AssignedToName " & _
+    "FROM " & DB_SCHEMA & "Jobs j " & _
+    "JOIN " & DB_SCHEMA & "JobTypes jt ON j.TypeID = jt.TypeID " & _
+    "JOIN " & DB_SCHEMA & "Users at    ON j.AssignedTo = at.UserID " & _
+    "WHERE j.JobID = " & jobID & _
+    "  AND j.AssignedBy = " & curRealUserID & _
+    "  AND j.Status = 'Submitted'")
+
+If rs.EOF Then
+    rs.Close : Set rs = Nothing
+    objConn.Close : Set objConn = Nothing
+    Response.Redirect "approve_list.asp?err=" & Server.URLEncode("Job not found or not eligible for approval.")
+    Response.End
+End If
+
+Dim jobTitle    : jobTitle    = CStr(rs("Title"))
+Dim targetDate  : targetDate  = CDate(rs("TargetDate"))
+Dim submitDate  : submitDate  = CDate(rs("SubmitDate"))
+Dim penPD       : penPD       = CLng(rs("PenaltyPerDay"))
+Dim assignedTo  : assignedTo  = CStr(rs("AssignedToName"))
+rs.Close : Set rs = Nothing
+
+' -- Call sp_ApproveJob ---------------------------------------
+' SP sets Status='Completed', CompletedDate=TODAY,
+' updates OnTimeJobs/LateJobs/Streak, logs to KPILog
+Dim cmd
+Set cmd = Server.CreateObject("ADODB.Command")
+With cmd
+    .ActiveConnection = objConn
+    .CommandType      = 4       ' adCmdStoredProc
+    .CommandText      = DB_SCHEMA & "sp_ApproveJob"
+    .Parameters.Append .CreateParameter("@JobID",     3, 1, , jobID)        ' adInteger
+    .Parameters.Append .CreateParameter("@ManagerID", 3, 1, , curRealUserID)
+End With
+
+On Error Resume Next
+cmd.Execute
+Dim spError : spError = Err.Description
+On Error GoTo 0
+Set cmd = Nothing
+
+If spError <> "" Then
+    objConn.Close : Set objConn = Nothing
+    Response.Redirect "approve_list.asp?err=" & Server.URLEncode(spError)
+    Response.End
+End If
+
+objConn.Close : Set objConn = Nothing
+
+' -- Build result for confirmation page -----------------------
+' Approval date is always TODAY (locked per prototype)
+Dim approvalDate : approvalDate = Date()
+Dim daysDiff     : daysDiff     = DateDiff("d", targetDate, approvalDate)
+Dim isLate       : isLate       = (daysDiff > 0)
+Dim isEarly      : isEarly      = (daysDiff < 0)
+Dim penaltyTotal : penaltyTotal = 0
+If isLate And penPD < 0 Then penaltyTotal = daysDiff * penPD  ' negative value
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="refresh" content="3;url=approve_list.asp">
+<title>Job Approved</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f3f4f6;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.box{background:#fff;border-radius:12px;padding:40px;max-width:500px;width:90%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+.alert{padding:15px;border-radius:8px;margin:20px 0;border-left:4px solid;text-align:left}
+.alert-success{background:#d1fae5;color:#065f46;border-left-color:#10b981}
+.alert-warning{background:#fef3c7;color:#92400e;border-left-color:#f59e0b}
+</style>
+</head>
+<body>
+<div class="box">
+    <div style="font-size:64px;margin-bottom:16px">&#x2705;</div>
+    <h2 style="font-size:22px;margin-bottom:8px">Job Approved!</h2>
+    <p style="color:#6b7280;margin-bottom:4px"><strong><%= Server.HTMLEncode(jobTitle) %></strong></p>
+    <p style="color:#6b7280;font-size:14px;margin-bottom:20px">Assigned to: <strong><%= Server.HTMLEncode(assignedTo) %></strong></p>
+
+    <div class="alert <%= iif(isLate, "alert-warning", "alert-success") %>">
+        <strong>Target Date:</strong> <%= fmtDate(targetDate) %><br>
+        <strong>Submit Date:</strong> <%= fmtDate(submitDate) %><br>
+        <strong>Approval Date:</strong> <%= fmtDate(approvalDate) %><br><br>
+        <div style="font-size:18px;font-weight:700;color:<%= iif(isLate, "#dc2626", "#059669") %>">
+            <% If isLate Then %>
+            &#x26A0; <%= daysDiff %> days LATE<br>
+            Penalty applied: <%= penaltyTotal %> pts<br>
+            <small>(-<%= Abs(penPD) %> pts/day &times; <%= daysDiff %> days)</small>
+            <% ElseIf isEarly Then %>
+            &#x1F389; <%= Abs(daysDiff) %> days EARLY!<br>Excellent work!
+            <% Else %>
+            &#x2705; Submitted ON-TIME!<br>Perfect!
+            <% End If %>
+        </div>
+    </div>
+
+    <p style="color:#9ca3af;font-size:13px">Redirecting in 3 seconds&hellip;</p>
+    <a href="approve_list.asp" style="display:inline-block;margin-top:12px;color:#3b82f6">Go now &rarr;</a>
+</div>
+</body>
+</html>

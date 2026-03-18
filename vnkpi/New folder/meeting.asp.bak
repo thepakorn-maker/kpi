@@ -1,0 +1,278 @@
+<%@ Language="VBScript" CODEPAGE="874" LCID="1033" %>
+<%
+    ' Fixes browser display
+    Response.CharSet = "windows-874" 
+    
+    ' Optional: Keeps dynamic/session data safe, 
+    ' though your SQL collation handles the heavy lifting.
+    Response.CodePage = 874 
+%>
+<!-- #include file="conn.asp" -->
+<!-- #include file="auth_check.asp" -->
+<!-- #include file="functions.asp" -->
+<%
+If Not curIsManager Then Response.Redirect "dashboard.asp" : Response.End
+Dim activePage : activePage = "meeting"
+%>
+<!-- #include file="header.asp" -->
+<%
+' ============================================================
+' meeting.asp — Meeting Mode (manager only)
+' Matches prototype renderMeeting() exactly.
+'
+' Shows:
+'   1. Meeting Agenda — Type 5 (Mr. Problem) Pending jobs
+'      Columns: Problem# / Issue / Reported By / Meeting Date / Status / Actions
+'      Actions: "Award Points" (pre-fills KPI form) + "Mark Resolved"
+'   2. Quick KPI Awards form — Person / Points / Reason
+'      Submits to kpi_adjust_action.asp
+'   3. Recent KPI Adjustments table — last 10 meeting adjustments
+' ============================================================
+
+' -- Fetch Mr. Problem agenda items (Type 5, Pending) ---------
+Dim rsAgenda
+Set rsAgenda = objConn.Execute( _
+    "SELECT j.JobID, j.Title, j.TargetDate, " & _
+    "       rb.Username AS ReportedByName, " & _
+    "       ISNULL(rb.Dept, rb.Department) AS ReportedByDept " & _
+    "FROM " & DB_SCHEMA & "Jobs j " & _
+    "JOIN " & DB_SCHEMA & "Users rb ON j.AssignedBy = rb.UserID " & _
+    "WHERE j.TypeID = '5' AND j.Status = 'Pending' " & _
+    "ORDER BY j.TargetDate ASC")
+
+' -- Fetch all active non-manager staff for KPI award form ----
+Dim rsStaff
+Set rsStaff = objConn.Execute( _
+    "SELECT v.UserID, v.Username, v.KPIPct, " & _
+    "       ISNULL(u.Dept, u.Department) AS Dept " & _
+    "FROM " & DB_SCHEMA & "v_UserKPIPct v " & _
+    "JOIN " & DB_SCHEMA & "Users u ON v.UserID = u.UserID " & _
+    "WHERE v.IsActive = 1 AND v.IsManager = 0 " & _
+    "AND LOWER(v.Username) <> 'mrproblem' " & _
+    "ORDER BY v.Username ASC")
+
+' -- Fetch recent meeting KPI adjustments ---------------------
+Dim rsAdj
+Set rsAdj = objConn.Execute( _
+    "SELECT TOP 10 k.ChangedAt, k.ChangeAmount, k.Reason, " & _
+    "       u.Username AS MemberName, " & _
+    "       ab.Username AS AdjByName " & _
+    "FROM " & DB_SCHEMA & "KPILog k " & _
+    "JOIN " & DB_SCHEMA & "Users u  ON k.UserID     = u.UserID " & _
+    "JOIN " & DB_SCHEMA & "Users ab ON k.AdjustedBy = ab.UserID " & _
+    "WHERE k.Source = 'meeting' " & _
+    "ORDER BY k.ChangedAt DESC")
+
+Dim todayStr : todayStr = fmtDate(Date())
+%>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 1: Meeting Agenda
+═════════════════════════════════════════════════════════ -->
+<div class="card">
+    <h2 style="font-size:28px;margin-bottom:20px">&#x1F4CB; Meeting Mode &mdash; Mr. Problem Agenda</h2>
+    <div class="alert alert-info">
+        <strong>&#x1F4A1; Monday Meeting Agenda</strong><br>
+        Review all problems/issues reported by the team.
+        Discuss and resolve, then award KPI points for solutions.
+    </div>
+
+    <%
+    ' Count agenda items
+    Dim agendaCount : agendaCount = 0
+    If Not rsAgenda.EOF Then
+        ' Can't count without iterating — fetch count separately
+        Dim rsCnt
+        Set rsCnt = objConn.Execute( _
+            "SELECT COUNT(*) FROM " & DB_SCHEMA & "Jobs " & _
+            "WHERE TypeID='5' AND Status='Pending'")
+        agendaCount = rsCnt(0)
+        rsCnt.Close : Set rsCnt = Nothing
+    End If
+    %>
+
+    <h3 style="font-size:22px;margin:30px 0 20px">&#x1F4DD; Meeting Agenda (<%= agendaCount %> items)</h3>
+
+    <% If rsAgenda.EOF Then %>
+    <div class="alert alert-success">
+        <strong>&#x2705; No problems reported!</strong><br>
+        The team is running smoothly. Great job everyone! &#x1F389;
+    </div>
+    <% Else %>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:40px">
+        <tr style="background:#3b82f6;color:white">
+            <th style="padding:15px;text-align:left">Problem #</th>
+            <th style="padding:15px;text-align:left">Issue / Topic</th>
+            <th style="padding:15px;text-align:left">Reported By</th>
+            <th style="padding:15px;text-align:left">Meeting Date</th>
+            <th style="padding:15px;text-align:center">Status</th>
+            <th style="padding:15px;text-align:center">Actions</th>
+        </tr>
+        <% Do While Not rsAgenda.EOF
+            Dim aID     : aID     = CLng(rsAgenda("JobID"))
+            Dim aTitle  : aTitle  = CStr(rsAgenda("Title"))
+            Dim aTD     : aTD     = CDate(rsAgenda("TargetDate"))
+            Dim aRBName : aRBName = CStr(rsAgenda("ReportedByName"))
+            Dim aRBDept : aRBDept = CStr(rsAgenda("ReportedByDept"))
+            Dim isToday : isToday = (aTD = Date())
+        %>
+        <tr style="border-bottom:1px solid #e5e7eb;background:white">
+            <td style="padding:15px;font-weight:700;font-size:16px">#<%= aID %></td>
+            <td style="padding:15px">
+                <div style="font-weight:700;font-size:15px;margin-bottom:5px">
+                    <%= safeStr(aTitle) %>
+                </div>
+                <div style="font-size:13px;color:#6b7280">Type 5 (Mr. Problem)</div>
+            </td>
+            <td style="padding:15px">
+                <div style="font-weight:700"><%= safeStr(aRBName) %></div>
+                <div style="font-size:13px;color:#6b7280"><%= safeStr(aRBDept) %></div>
+            </td>
+            <td style="padding:15px">
+                <div style="font-weight:700;color:#3b82f6"><%= sys_date(aTD) %></div>
+                <% If isToday Then %>
+                <div style="font-size:13px;color:#dc2626">&#x1F534; TODAY!</div>
+                <% End If %>
+            </td>
+            <td style="padding:15px;text-align:center">
+                <span style="background:#fef3c7;color:#92400e;padding:5px 15px;border-radius:20px;font-size:13px;font-weight:600">
+                    &#x1F4CB; Pending Discussion
+                </span>
+            </td>
+            <td style="padding:15px;text-align:center">
+                <!-- Award Points: pre-fills KPI form below via JS -->
+                <button class="btn btn-success"
+                        style="font-size:13px;padding:8px 15px;margin:2px"
+                        onclick="presetAward(<%= aID %>, '<%= Replace(safeStr(aTitle),"'","\'") %>', '<%= aRBName %>')">
+                    &#x2B50; Award Points
+                </button>
+                <!-- Mark Resolved: POST to resolve_problem_action.asp -->
+                <form method="POST" action="resolve_problem_action.asp" style="display:inline">
+                    <input type="hidden" name="JobID" value="<%= aID %>">
+                    <button type="submit" class="btn btn-primary"
+                            style="font-size:13px;padding:8px 15px;margin:2px">
+                        &#x2705; Mark Resolved
+                    </button>
+                </form>
+            </td>
+        </tr>
+        <% rsAgenda.MoveNext : Loop %>
+    </table>
+    <% End If %>
+    <% rsAgenda.Close : Set rsAgenda = Nothing %>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 2: Quick KPI Awards form
+═════════════════════════════════════════════════════════ -->
+<div class="card" id="kpiAwardSection">
+    <h3 style="font-size:22px;margin:0 0 20px">&#x1F3AF; Quick KPI Awards (For Problem Solvers)</h3>
+
+    <form method="POST" action="kpi_adjust_action.asp" id="kpiForm">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px">
+            <div class="form-group">
+                <label style="font-size:16px">Team Member: <span style="color:#dc2626">*</span></label>
+                <select id="meetingPerson" name="TargetUserID" style="font-size:16px">
+                    <option value="">-- Select Person --</option>
+                    <%
+                    Do While Not rsStaff.EOF
+                    %>
+                    <option value="<%= rsStaff("UserID") %>">
+                        <%= safeStr(rsStaff("Username")) %> &mdash;
+                        <%= FormatNumber(CDbl(rsStaff("KPIPct")),0) %>%
+                        (<%= safeStr(rsStaff("Dept")) %>)
+                    </option>
+                    <% rsStaff.MoveNext : Loop %>
+                    <% rsStaff.Close : Set rsStaff = Nothing %>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label style="font-size:16px">KPI Points: <span style="color:#dc2626">*</span></label>
+                <select id="meetingPoints" name="Points" style="font-size:16px">
+                    <option value="0">0 points (No change)</option>
+                    <optgroup label="&#x26A0; Penalties">
+                        <option value="-1">-1 point</option>
+                        <option value="-2">-2 points</option>
+                        <option value="-3">-3 points</option>
+                        <option value="-5">-5 points</option>
+                    </optgroup>
+                    <optgroup label="&#x2B50; Rewards">
+                        <option value="1">+1 point (Good)</option>
+                        <option value="2">+2 points (Great)</option>
+                        <option value="3">+3 points (Excellent)</option>
+                        <option value="5">+5 points (Outstanding)</option>
+                        <option value="10">+10 points (Exceptional)</option>
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label style="font-size:16px">Reason: <span style="color:#dc2626">*</span></label>
+            <textarea id="meetingReason" name="Reason" rows="3"
+                      placeholder="E.g., Excellent solution to BOM issue"
+                      style="font-size:15px"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success"
+                style="font-size:18px;padding:15px 40px">
+            &#x2705; Apply KPI Adjustment
+        </button>
+    </form>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 3: Recent KPI Adjustments
+═════════════════════════════════════════════════════════ -->
+<div class="card">
+    <h3 style="font-size:22px;margin-bottom:20px">&#x1F4DC; Recent KPI Adjustments</h3>
+
+    <% If rsAdj.EOF Then %>
+    <div class="alert alert-info">No KPI adjustments recorded yet.</div>
+    <% Else %>
+    <table style="width:100%">
+        <tr style="background:#f3f4f6">
+            <th style="padding:12px">Date</th>
+            <th style="padding:12px">Team Member</th>
+            <th style="padding:12px">Points</th>
+            <th style="padding:12px">Reason</th>
+            <th style="padding:12px">By</th>
+        </tr>
+        <% Do While Not rsAdj.EOF
+            Dim adjPts : adjPts = CLng(rsAdj("ChangeAmount"))
+            Dim adjDisp : adjDisp = CStr(adjPts) : If adjPts > 0 Then adjDisp = "+" & adjPts
+        %>
+        <tr style="background:<%= iif(adjPts > 0, "#d1fae5", "#fee2e2") %>;border-bottom:1px solid #e5e7eb">
+            <td style="padding:12px"><%= sys_date(rsAdj("ChangedAt")) %></td>
+            <td style="padding:12px"><strong><%= safeStr(rsAdj("MemberName")) %></strong></td>
+            <td style="padding:12px;color:<%= iif(adjPts > 0, "#059669", "#dc2626") %>;font-weight:700;font-size:18px">
+                <%= adjDisp %>
+            </td>
+            <td style="padding:12px;font-size:14px"><%= safeStr(rsAdj("Reason")) %></td>
+            <td style="padding:12px"><%= safeStr(rsAdj("AdjByName")) %></td>
+        </tr>
+        <% rsAdj.MoveNext : Loop %>
+    </table>
+    <% End If %>
+    <% rsAdj.Close : Set rsAdj = Nothing %>
+</div>
+
+<script>
+// presetAward() — matches prototype openRewardModal()
+// Pre-fills the KPI form for a specific agenda item
+function presetAward(jobID, title, reportedBy) {
+    document.getElementById('meetingReason').value =
+        'Addressed problem: ' + title;
+    // Set points to +5 (Outstanding) as prototype default
+    document.getElementById('meetingPoints').value = '5';
+    // Scroll to the KPI award form
+    document.getElementById('kpiAwardSection').scrollIntoView({behavior:'smooth', block:'center'});
+    document.getElementById('meetingReason').focus();
+}
+</script>
+
+</div><!-- /container -->
+</body>
+</html>
+<% objConn.Close : Set objConn = Nothing %>

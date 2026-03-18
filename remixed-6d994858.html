@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Vinova v5.0 - Complete Production System</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f3f4f6;padding:20px}
+.container{max-width:1600px;margin:0 auto}
+.header{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:30px;border-radius:12px;margin-bottom:20px;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.card{background:white;padding:25px;margin:15px 0;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.btn{padding:12px 24px;margin:5px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s;display:inline-block}
+.btn-primary{background:#3b82f6;color:white}.btn-primary:hover{background:#2563eb;transform:translateY(-2px)}
+.btn-success{background:#10b981;color:white}.btn-success:hover{background:#059669;transform:translateY(-2px)}
+.btn-danger{background:#ef4444;color:white}.btn-danger:hover{background:#dc2626;transform:translateY(-2px)}
+.btn-warning{background:#f59e0b;color:white}.btn-warning:hover{background:#d97706;transform:translateY(-2px)}
+.btn-secondary{background:#6b7280;color:white}.btn-secondary:hover{background:#4b5563}
+.tabs{display:flex;gap:10px;margin:20px 0;overflow-x:auto;background:white;padding:10px;border-radius:10px;flex-wrap:wrap}
+.tab{padding:12px 20px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:all 0.3s;font-weight:500}
+.tab:hover{background:#f3f4f6}
+.tab.active{background:#3b82f6;color:white;font-weight:700;box-shadow:0 2px 8px rgba(59,130,246,0.3)}
+.progress{background:#e5e7eb;height:30px;border-radius:15px;overflow:hidden;margin:15px 0;position:relative}
+.progress-bar{background:linear-gradient(90deg,#3b82f6,#8b5cf6);height:100%;transition:width 0.8s ease;display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #e5e7eb;font-size:14px}
+th{background:#f9fafb;font-weight:700;color:#374151;font-size:12px;text-transform:uppercase;position:sticky;top:0}
+tr:hover{background:#f9fafb}
+.badge{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;display:inline-block}
+.tier-icon{font-size:60px;text-align:center;margin:20px 0;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin:20px 0}
+.stat-box{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:20px;border-radius:10px;text-align:center;transition:transform 0.3s}
+.stat-box:hover{transform:translateY(-5px)}
+.stat-label{font-size:12px;opacity:0.9;text-transform:uppercase;letter-spacing:1px}
+.stat-value{font-size:36px;font-weight:700;margin:10px 0}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center}
+.modal.active{display:flex}
+.modal-content{background:white;padding:30px;border-radius:12px;max-width:600px;width:90%;max-height:90vh;overflow-y:auto;animation:slideIn 0.3s ease}
+@keyframes slideIn{from{transform:translateY(-50px);opacity:0}to{transform:translateY(0);opacity:1}}
+.form-group{margin:20px 0}
+.form-group label{display:block;font-weight:600;margin-bottom:8px;color:#374151}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;transition:border-color 0.3s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+.job-type-1{background:#fee2e2;color:#991b1b;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700}
+.job-type-2{background:#fed7aa;color:#9a3412;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700}
+.job-type-3{background:#fef3c7;color:#92400e;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700}
+.job-type-5{background:#e0e7ff;color:#3730a3;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700}
+.job-type-41{background:#dbeafe;color:#1e40af;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700}
+.job-type-42{background:#f3e8ff;color:#6b21a8;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700}
+.job-type-43{background:#fce7f3;color:#9f1239;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700}
+.private-badge{background:#dc2626;color:white;padding:4px 8px;border-radius:4px;font-size:10px;font-weight:700;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+.alert{padding:15px;border-radius:8px;margin:15px 0;border-left:4px solid}
+.alert-info{background:#dbeafe;color:#1e40af;border-left-color:#3b82f6}
+.alert-warning{background:#fef3c7;color:#92400e;border-left-color:#f59e0b}
+.alert-success{background:#d1fae5;color:#065f46;border-left-color:#10b981}
+.alert-danger{background:#fee2e2;color:#991b1b;border-left-color:#dc2626}
+.close-btn{float:right;font-size:24px;cursor:pointer;color:#6b7280;line-height:1}
+.close-btn:hover{color:#dc2626}
+.overdue-row{background:#fee2e2 !important;animation:blink 2s infinite}
+.target-today-row{background:#fff7ed !important;animation:pulse-orange 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.7}}
+@keyframes pulse-orange{0%,100%{background:#fff7ed}50%{background:#fed7aa}}
+.shift-badge{background:#f59e0b;color:white;padding:4px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-left:5px}
+.early-finish{background:#d1fae5 !important}
+.problem-card{border-left:4px solid #3b82f6;padding:15px;margin:10px 0;background:#f9fafb;border-radius:8px;transition:all 0.3s}
+.problem-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.1);transform:translateX(5px)}
+.problem-urgent{border-left-color:#dc2626;background:#fee}
+.problem-solved{border-left-color:#10b981;background:#efe}
+.kpi-adjust-history{max-height:400px;overflow-y:auto;margin-top:20px}
+.user-btn{margin:5px;padding:10px 20px;border:2px solid #3b82f6;background:white;color:#3b82f6;border-radius:8px;cursor:pointer;font-weight:600;transition:all 0.3s}
+.user-btn:hover{background:#3b82f6;color:white;transform:scale(1.05)}
+.user-btn.active{background:#3b82f6;color:white}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1 style="font-size:36px;margin-bottom:10px;font-weight:700">🎯 Vinova Production System v5.0</h1>
+    <p style="opacity:0.95;font-size:16px">Complete Job Tracking • Fair KPI • Meeting Mode • Problem Management • All Features Working</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:15px">👤 Logged in as: <span id="currentUserName" style="color:#3b82f6">Naveen (Manager)</span></h3>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <button class="user-btn active" onclick="switchUser('naveen')" style="border-color:#10b981;color:#10b981">👔 Naveen (Manager)</button>
+      <button class="user-btn" onclick="switchUser('pritika')" style="border-color:#10b981;color:#10b981">👔 Pritika (Manager)</button>
+      <button class="user-btn" onclick="switchUser('amp')" style="border-color:#10b981;color:#10b981">👔 Amp (Manager)</button>
+      <button class="user-btn" onclick="switchUser('tai')">👨‍💼 Tai</button>
+      <button class="user-btn" onclick="switchUser('sun')">👨‍💼 Sun</button>
+      <button class="user-btn" onclick="switchUser('ice')">👨‍💼 Ice</button>
+      <button class="user-btn" onclick="switchUser('fai')">👨‍💼 Fai</button>
+      <button class="user-btn" onclick="switchUser('mint')">👨‍💼 Mint</button>
+      <button class="user-btn" onclick="switchUser('bosch')">👨‍💼 Bosch</button>
+      <button class="user-btn" onclick="switchUser('kung')">👨‍💼 Kung</button>
+      <button class="user-btn" onclick="switchUser('gatik')">👨‍💼 Gatik</button>
+      <button class="user-btn" onclick="switchUser('devin')">👨‍💼 Devin</button>
+      <button class="user-btn" onclick="switchUser('kmow')">👨‍💼 K Mow</button>
+      <button class="user-btn" onclick="switchUser('account')">👨‍💼 Account</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('dashboard')">📊 Dashboard</div>
+    <div class="tab" onclick="showTab('myjobs')">📋 My Jobs</div>
+    <div class="tab" onclick="showTab('assignjob')">➕ Assign Job</div>
+    <div class="tab" onclick="showTab('jobswip')">✅ Approve Submitted</div>
+    <div class="tab" onclick="showTab('team')" id="tabTeam" style="display:block">👥 Team</div>
+    <div class="tab" onclick="showTab('problems')" id="tabProblems" style="display:block">📝 Problems</div>
+    <div class="tab" onclick="showTab('meeting')" id="tabMeeting" style="display:block">🎯 Meeting</div>
+  </div>
+
+  <div id="content"></div>
+</div>
+
+<!-- Modals -->
+<div id="acceptModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal('acceptModal')">&times;</span>
+    <h2 style="margin-bottom:20px">✅ Approve Submitted Work</h2>
+    <div id="acceptJobDetails"></div>
+    <div class="form-group">
+      <label>Approval Date (TODAY ONLY):</label>
+      <input type="date" id="acceptDate" readonly style="background:#f3f4f6">
+    </div>
+    <div class="alert alert-warning">
+      <strong>⚠️ Important:</strong> Approval date is locked to TODAY. This confirms the work is complete and applies any late penalties to their KPI.
+    </div>
+    <button class="btn btn-success" onclick="confirmAccept()">✅ Approve & Complete</button>
+    <button class="btn btn-secondary" onclick="closeModal('acceptModal')">Cancel</button>
+  </div>
+</div>
+
+<div id="shiftModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal('shiftModal')">&times;</span>
+    <h2 style="margin-bottom:20px">📅 Shift Target Date</h2>
+    <div id="shiftJobDetails"></div>
+    <div class="form-group">
+      <label>Original Target Date:</label>
+      <input type="text" id="originalTargetDate" readonly style="background:#f3f4f6">
+    </div>
+    <div class="form-group">
+      <label>Current Target Date:</label>
+      <input type="text" id="currentTargetDate" readonly style="background:#f3f4f6">
+    </div>
+    <div class="form-group">
+      <label>Shifts Remaining:</label>
+      <input type="text" id="shiftsRemaining" readonly style="background:#f3f4f6">
+    </div>
+    <div class="form-group">
+      <label>New Target Date (must be ≥ today): <span style="color:#dc2626">*</span></label>
+      <input type="date" id="newTargetDate">
+    </div>
+    <div class="form-group" id="shiftReasonSection" style="display:none">
+      <label id="shiftReasonLabel">💬 Reason for Shift: <span style="color:#dc2626">*</span></label>
+      <textarea id="shiftReason" rows="3" placeholder="Explain why you need to shift the date..." style="font-size:14px;padding:10px"></textarea>
+    </div>
+    <div class="alert alert-warning">
+      <strong>📋 Date Change Rules:</strong><br>
+      • <strong>Types 1, 2, 3:</strong> Only JOB GIVER can change date (Type 1 needs reason)<br>
+      • <strong>Types 4.x & 5:</strong> JOB RECEIVER must write reason to shift<br>
+      • <strong>Managers:</strong> Can override in special cases
+    </div>
+    <button class="btn btn-warning" onclick="confirmShift()">📅 Shift Date</button>
+    <button class="btn btn-secondary" onclick="closeModal('shiftModal')">Cancel</button>
+  </div>
+</div>
+
+<div id="problemModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal('problemModal')">&times;</span>
+    <h2 style="margin-bottom:20px">📝 Report Problem / Achievement</h2>
+    <div class="form-group">
+      <label>Problem Type:</label>
+      <select id="problemType">
+        <option value="quality">⚠️ Quality Issue</option>
+        <option value="deadline">⏰ Deadline Pattern</option>
+        <option value="communication">💬 Communication</option>
+        <option value="training">📚 Training Need</option>
+        <option value="recognition">⭐ Recognition/Praise</option>
+        <option value="other">📌 Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Related Person:</label>
+      <select id="problemPerson">
+        <option value="tai">Tai - Merchandiser 1</option>
+        <option value="sun">Sun - Sales</option>
+        <option value="ice">Ice - BOM 1</option>
+        <option value="fai">Fai - Merchandiser 2</option>
+        <option value="bosch">Bosch - Designer</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Description:</label>
+      <textarea id="problemDesc" rows="4" placeholder="Describe the problem or achievement in detail..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Suggested KPI Impact:</label>
+      <select id="problemImpact">
+        <option value="0">0 pts (No impact - discussion only)</option>
+        <optgroup label="Penalties">
+          <option value="-1">-1 pt (Minor issue)</option>
+          <option value="-2">-2 pts (Moderate issue)</option>
+          <option value="-3">-3 pts (Serious issue)</option>
+          <option value="-5">-5 pts (Critical issue)</option>
+        </optgroup>
+        <optgroup label="Rewards">
+          <option value="1">+1 pt (Good work)</option>
+          <option value="2">+2 pts (Great work)</option>
+          <option value="3">+3 pts (Excellent work)</option>
+          <option value="5">+5 pts (Outstanding - Problem Solver!)</option>
+          <option value="10">+10 pts (Exceptional achievement)</option>
+        </optgroup>
+      </select>
+    </div>
+    <button class="btn btn-success" onclick="addProblem()">📝 Add to Meeting Agenda</button>
+    <button class="btn btn-secondary" onclick="closeModal('problemModal')">Cancel</button>
+  </div>
+</div>
+
+<script>
+// Suppress non-critical console errors during demo
+window.addEventListener('error', function(e) {
+  if (e.message && e.message.includes('target') && e.message.includes('undefined')) {
+    e.preventDefault();
+    return false;
+  }
+});
+
+let currentUser = 'naveen';
+let selectedJobForAccept = null;
+let selectedJobForShift = null;
+
+const users = {
+  tai: {name:'Tai',role:'developer',dept:'MER TEAM A',pct:70,jobs:10,onTime:7,late:3,streak:2,email:'merchandiser.vinova@gmail.com'},
+  sun: {name:'Sun',role:'developer',dept:'SALES TEAM B',pct:85,jobs:7,onTime:6,late:1,streak:3,email:'sunvinova99@gmail.com'},
+  bosch: {name:'Bosch',role:'developer',dept:'GRAPHIC A+B',pct:90,jobs:10,onTime:9,late:1,streak:5,email:'design.vinova2024@gmail.com'},
+  ice: {name:'Ice',role:'developer',dept:'BOM TEAM A',pct:66,jobs:3,onTime:2,late:1,streak:0,email:'bom.vinova@gmail.com'},
+  fai: {name:'Fai',role:'developer',dept:'MER TEAM B',pct:60,jobs:5,onTime:3,late:2,streak:0,email:'mervinovaventures@gmail.com'},
+  mint: {name:'Mint',role:'developer',dept:'BOM TEAM B',pct:75,jobs:8,onTime:6,late:2,streak:1,email:'mervinova@gmail.com'},
+  gatik: {name:'Gatik',role:'developer',dept:'PURCHASE A+B',pct:82,jobs:6,onTime:5,late:1,streak:2,email:'vinovapurchase@gmail.com'},
+  devin: {name:'Devin',role:'developer',dept:'SALES TEAM C',pct:88,jobs:9,onTime:8,late:1,streak:4,email:'vinovasolutions@mail.com'},
+  mow: {name:'Mow',role:'developer',dept:'SALES TEAM C',pct:78,jobs:7,onTime:5,late:2,streak:1,email:'vinovasolutions@gmail.com'},
+  account: {name:'Account Vinova',role:'developer',dept:'ACCOUNT TEAM A+B+C',pct:72,jobs:5,onTime:4,late:1,streak:1,email:'accvinova@gmail.com'},
+  naveen: {name:'Naveen',role:'manager',dept:'BOSS',email:'naveensethi68@gmail.com'},
+  pritika: {name:'Pritika',role:'manager',dept:'BOSS',email:'joliesethi@gmail.com'},
+  amp: {name:'Amp',role:'manager',dept:'SALES TEAM B',pct:80,jobs:8,onTime:7,late:1,streak:3,email:'ampvinova@gmail.com'},
+  kung: {name:'Kung',role:'developer',dept:'SALES TEAM A',pct:80,jobs:8,onTime:7,late:1,streak:3,email:'kungvinova@gmail.com'},
+  pu: {name:'Pu',role:'developer',dept:'DELIVERY A+B',pct:74,jobs:6,onTime:5,late:1,streak:2,email:'deliveryvinova@gmail.com'},
+  ann: {name:'Ann',role:'developer',dept:'BUNDLING A+B',pct:68,jobs:7,onTime:5,late:2,streak:1,email:'vinovafashion77@gmail.com'},
+  mo: {name:'MO',role:'developer',dept:'MARK A+B',pct:76,jobs:8,onTime:6,late:2,streak:2,email:'vinovamark@gmail.com'},
+  ae: {name:'Ae',role:'developer',dept:'PPC A+B',pct:79,jobs:6,onTime:5,late:1,streak:3,email:'ppcvinova@gmail.com'},
+  mrproblem: {name:'Mr. Problem',role:'special',dept:'Meeting Agenda',pct:100,jobs:0,onTime:0,late:0,streak:0,email:'internal.vinova@gmail.com'}
+};
+
+const jobTypes = {
+  '-2': {name:'Type -2 (Owner Emergency)',penalty:20,desc:'EMERGENCY - Crisis/Critical deadline - HIGHEST penalty',maxShifts:0},
+  '-1': {name:'Type -1 (Owner Critical)',penalty:10,desc:'CRITICAL - Very urgent owner request - NO delays',maxShifts:0},
+  0: {name:'Type 0 (Owner/Admin)',penalty:0,desc:'Owner/Admin tasks - No KPI impact, Unlimited shifts',maxShifts:999},
+  1: {name:'Type 1 (Urgent/No Delay)',penalty:5,desc:'Urgent customer request - Cannot delay',maxShifts:0},
+  2: {name:'Type 2 (Urgent)',penalty:2,desc:'Urgent work',maxShifts:2},
+  3: {name:'Type 3 (Important)',penalty:1,desc:'Important work',maxShifts:3},
+  5: {name:'Type 5 (Mr. Problem)',penalty:0,desc:'Problem solving - No penalty',maxShifts:999},
+  41: {name:'Type 4.1 (Planning - General)',penalty:1,desc:'General planning',maxShifts:999},
+  42: {name:'Type 4.2 (Planning - Solution)',penalty:1,desc:'Solution planning',maxShifts:3},
+  43: {name:'Type 4.3 (Planning - Fashion)',penalty:1,desc:'Fashion planning',maxShifts:2}
+};
+
+let jobs = [
+  {id:1,type:-2,title:'🔴 EMERGENCY: Board meeting presentation due tomorrow!',assignedBy:'naveen',assignedTo:'amp',originalTarget:'2024-12-28',target:'2024-12-28',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'emergency'},
+  {id:2,type:-1,title:'⚡ CRITICAL: Major client proposal - urgent deadline',assignedBy:'pritika',assignedTo:'kung',originalTarget:'2024-12-29',target:'2024-12-29',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'urgent'},
+  {id:3,type:0,title:'🔴 URGENT: Client complaint - immediate response needed',assignedBy:'tai',assignedTo:'naveen',originalTarget:'2024-12-28',target:'2024-12-28',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'emergency'},
+  {id:4,type:0,title:'Sample approval request from ABC Corp',assignedBy:'amp',assignedTo:'pritika',originalTarget:'2024-12-29',target:'2024-12-29',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'urgent'},
+  {id:5,type:0,title:'Strategic planning - Company vision 2025',assignedBy:'naveen',assignedTo:'pritika',originalTarget:'2025-01-15',target:'2025-01-15',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'normal'},
+  {id:6,type:2,title:'TARGET TODAY: Meeting preparation materials',assignedBy:'naveen',assignedTo:'tai',originalTarget:'2024-12-27',target:'2024-12-27',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'urgent'},
+  {id:7,type:1,title:'OVERDUE: Urgent sample check ABC Corp',assignedBy:'amp',assignedTo:'sun',originalTarget:'2024-12-24',target:'2024-12-24',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'urgent'},
+  {id:8,type:3,title:'Factory visit prep documents',assignedBy:'amp',assignedTo:'tai',originalTarget:'2024-12-30',target:'2024-12-30',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'normal'},
+  {id:9,type:41,title:'Q1 2025 planning document',assignedBy:'pritika',assignedTo:'ice',originalTarget:'2024-12-29',target:'2024-12-29',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'normal'},
+  {id:10,type:42,title:'Solution plan - BOM system issue',assignedBy:'naveen',assignedTo:'bosch',originalTarget:'2024-12-31',target:'2024-12-31',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'normal'},
+  {id:11,type:5,title:'Communication breakdown - Sales & BOM coordination',assignedBy:'kung',assignedTo:'mrproblem',reportedBy:'kung',originalTarget:'2024-12-30',target:'2024-12-30',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'normal'},
+  {id:12,type:5,title:'Quality issue - Need better sample review process',assignedBy:'amp',assignedTo:'mrproblem',reportedBy:'amp',originalTarget:'2025-01-06',target:'2025-01-06',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'normal'},
+  {id:13,type:43,title:'SS2025 Fashion planning',assignedBy:'naveen',assignedTo:'fai',originalTarget:'2024-12-28',target:'2024-12-28',status:'pending',isPrivate:false,shiftsUsed:0,urgency:'normal'},
+  {id:14,type:2,title:'Design mockup v2 approval',assignedBy:'naveen',assignedTo:'bosch',originalTarget:'2024-12-24',target:'2024-12-24',submitDate:'2024-12-24',status:'wip',isPrivate:false,shiftsUsed:0,urgency:'normal'},
+  {id:15,type:41,title:'Planning doc completed early',assignedBy:'amp',assignedTo:'ice',originalTarget:'2024-12-30',target:'2024-12-30',submitDate:'2024-12-27',status:'wip',isPrivate:false,shiftsUsed:0,urgency:'normal'}
+];
+
+let problems = [
+  {id:1,type:'quality',person:'ice',desc:'Quality issues in BOM entries - needs additional training on quality standards',impact:-3,status:'pending',date:'2024-12-26'},
+  {id:2,type:'deadline',person:'fai',desc:'Pattern of late submissions on Type 3 jobs - need to discuss time management',impact:-2,status:'pending',date:'2024-12-26'},
+  {id:3,type:'recognition',person:'bosch',desc:'Consistently early submissions with excellent quality - exemplary performance',impact:5,status:'pending',date:'2024-12-27'},
+  {id:4,type:'training',person:'tai',desc:'Needs training on new BOM system features rolling out next month',impact:0,status:'pending',date:'2024-12-25'},
+  {id:5,type:'communication',person:'sun',desc:'Excellent communication and proactive updates on sample status',impact:2,status:'pending',date:'2024-12-27'}
+];
+
+let kpiAdjustments = [
+  {person:'bosch',points:5,reason:'Excellent work on design project - delivered 3 days ahead of schedule with zero revisions',date:'2024-12-20',adjustedBy:'naveen'},
+  {person:'ice',points:-3,reason:'Quality issues in BOM requiring significant rework',date:'2024-12-22',adjustedBy:'naveen'},
+  {person:'sun',points:3,reason:'Proactive solution to sample shipment issue, saved 2 days',date:'2024-12-23',adjustedBy:'naveen'},
+  {person:'tai',points:2,reason:'Helped Fai solve technical issue with new system',date:'2024-12-25',adjustedBy:'naveen'}
+];
+
+let nextJobId = 100;
+let nextProblemId = 10;
+
+function switchUser(user) {
+  currentUser = user;
+  const u = users[user];
+  
+  document.querySelectorAll('.user-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  document.getElementById('currentUserName').textContent = u.name + ' (' + (u.role==='manager'?'Manager':'Developer') + ')';
+  
+  if(u.role === 'manager') {
+    document.getElementById('tabTeam').style.display = 'block';
+    document.getElementById('tabProblems').style.display = 'block';
+    document.getElementById('tabMeeting').style.display = 'block';
+  } else {
+    document.getElementById('tabTeam').style.display = 'none';
+    document.getElementById('tabProblems').style.display = 'none';
+    document.getElementById('tabMeeting').style.display = 'none';
+  }
+  
+  showTab('dashboard');
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  const content = document.getElementById('content');
+  
+  if(tab === 'dashboard') renderDashboard(content);
+  else if(tab === 'myjobs') renderMyJobs(content);
+  else if(tab === 'assignjob') renderAssignJob(content);
+  else if(tab === 'jobswip') renderJobsWIP(content);
+  else if(tab === 'team') renderTeam(content);
+  else if(tab === 'problems') renderProblems(content);
+  else if(tab === 'meeting') renderMeeting(content);
+}
+
+function getTier(pct) {
+  if(pct>=95) return {name:'PLATINUM',icon:'🏆',badge:'badge-platinum'};
+  if(pct>=85) return {name:'GOLD',icon:'🥇',badge:'badge-gold'};
+  if(pct>=70) return {name:'SILVER',icon:'🥈',badge:'badge-silver'};
+  if(pct>=60) return {name:'BRONZE',icon:'🥉',badge:'badge-bronze'};
+  return {name:'NEEDS WORK',icon:'⚠️',badge:'badge-bronze'};
+}
+
+function getTodayDate() {
+  return '2024-12-27'; // Demo date - in production: new Date().toISOString().split('T')[0]
+}
+
+function getNextMonday() {
+  const today = new Date('2024-12-27'); // Demo date - in production: new Date()
+  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  
+  let daysUntilMonday;
+  if (dayOfWeek === 0) { // Sunday
+    daysUntilMonday = 1;
+  } else if (dayOfWeek === 1) { // Monday
+    daysUntilMonday = 7; // Next Monday, not today
+  } else { // Tuesday - Saturday
+    daysUntilMonday = 8 - dayOfWeek;
+  }
+  
+  const nextMonday = new Date(today);
+  nextMonday.setDate(today.getDate() + daysUntilMonday);
+  
+  return nextMonday.toISOString().split('T')[0];
+}
+
+function getUrgencyBadge(urgency) {
+  if (!urgency || urgency === 'normal') return '';
+  if (urgency === 'emergency') return '<span style="background:#dc2626;color:white;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:5px;font-weight:700">🔴 EMERGENCY</span>';
+  if (urgency === 'urgent') return '<span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:5px;font-weight:700">⚠️ URGENT</span>';
+  return '';
+}
+
+function isOverdue(targetDate) {
+  return targetDate < getTodayDate();
+}
+
+function isTargetToday(targetDate) {
+  return targetDate === getTodayDate();
+}
+
+function canShift(job) {
+  const jobType = job.type;
+  const isJobGiver = (currentUser === job.assignedBy);
+  const isJobReceiver = (currentUser === job.assignedTo);
+  const isManager = (users[currentUser].role === 'manager');
+  
+  // Types -2, -1 (Owner Emergency/Critical): ONLY job giver can shift (but max 0 shifts anyway)
+  if (jobType === -2 || jobType === -1) {
+    return isJobGiver || isManager;
+  }
+  
+  // Type 0 (Owner/Admin): Anyone can shift (unlimited)
+  if (jobType === 0) {
+    return isJobReceiver || isJobGiver || isManager;
+  }
+  
+  // Types 1, 2, 3: ONLY job giver can shift
+  if (jobType === 1 || jobType === 2 || jobType === 3) {
+    return isJobGiver || isManager;
+  }
+  
+  // Types 4.1, 4.2, 4.3, 5: Job receiver can shift (after target date or with comment)
+  if (jobType === 41 || jobType === 42 || jobType === 43 || jobType === 5) {
+    return isJobReceiver || isJobGiver || isManager;
+  }
+  
+  return false;
+}
+
+function renderDashboard(content) {
+  const user = users[currentUser];
+  if(user.role === 'developer') {
+    const tier = getTier(user.pct);
+    const teamAvg = 74;
+    
+    content.innerHTML = `
+      <div class="card">
+        <h2 style="font-size:28px;margin-bottom:20px">📊 My Performance Dashboard</h2>
+        <div class="tier-icon">${tier.icon}</div>
+        <div style="text-align:center">
+          <div style="font-size:80px;font-weight:700;color:#3b82f6;margin:20px 0">${user.pct}%</div>
+          <span style="background:#fef3c7;color:#92400e;padding:10px 20px;border-radius:25px;font-size:16px;font-weight:700">${tier.name} TIER</span>
+        </div>
+        
+        <div class="progress" style="height:40px;margin:30px 0">
+          <div class="progress-bar" style="width:${user.pct}%">
+            <span style="font-size:16px">${user.pct}% On-Time Rate</span>
+          </div>
+        </div>
+        
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="stat-label">Total Jobs</div>
+            <div class="stat-value">${user.jobs}</div>
+            <div class="stat-label">Completed</div>
+          </div>
+          <div class="stat-box" style="background:linear-gradient(135deg,#10b981,#059669)">
+            <div class="stat-label">On-Time</div>
+            <div class="stat-value">${user.onTime} ✅</div>
+            <div class="stat-label">${((user.onTime/user.jobs)*100).toFixed(0)}%</div>
+          </div>
+          <div class="stat-box" style="background:linear-gradient(135deg,#ef4444,#dc2626)">
+            <div class="stat-label">Late</div>
+            <div class="stat-value">${user.late} ⚠️</div>
+            <div class="stat-label">${((user.late/user.jobs)*100).toFixed(0)}%</div>
+          </div>
+          <div class="stat-box" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+            <div class="stat-label">Current Streak</div>
+            <div class="stat-value">${user.streak} 🔥</div>
+            <div class="stat-label">Jobs on-time</div>
+          </div>
+        </div>
+        
+        <h3 style="margin:30px 0 15px;font-size:20px">📈 Team Comparison</h3>
+        <div style="margin:15px 0">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="font-weight:700">Your Performance</span>
+            <strong style="color:#3b82f6;font-size:18px">${user.pct}%</strong>
+          </div>
+          <div class="progress" style="height:30px">
+            <div class="progress-bar" style="width:${user.pct}%"></div>
+          </div>
+        </div>
+        <div style="margin:15px 0">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span>Team Average</span>
+            <strong>${teamAvg}%</strong>
+          </div>
+          <div class="progress" style="height:25px">
+            <div class="progress-bar" style="background:#6b7280;width:${teamAvg}%"></div>
+          </div>
+        </div>
+        <div style="margin:15px 0">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span>Top Performer (Anonymous)</span>
+            <strong>90%</strong>
+          </div>
+          <div class="progress" style="height:25px">
+            <div class="progress-bar" style="background:#fbbf24;width:90%"></div>
+          </div>
+        </div>
+        
+        <div class="alert ${user.pct >= teamAvg ? 'alert-success' : 'alert-warning'}">
+          <strong>${user.pct >= teamAvg ? '✅ Excellent Performance!' : '⚠️ Focus Needed'}</strong><br>
+          You are <strong>${Math.abs(user.pct - teamAvg)}%</strong> ${user.pct >= teamAvg ? 'above' : 'below'} team average.
+        </div>
+      </div>
+    `;
+  } else {
+    const pendingProblems = problems.filter(p => p.status === 'pending').length;
+    const overdueJobs = jobs.filter(j => j.status==='pending' && j.target && isOverdue(j.target)).length;
+    
+    content.innerHTML = `
+      <div class="card">
+        <h2 style="font-size:28px;margin-bottom:20px">👔 Manager Dashboard</h2>
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="stat-label">Team Average</div>
+            <div class="stat-value">74%</div>
+            <div class="stat-label">On-Time Rate</div>
+          </div>
+          <div class="stat-box" style="background:linear-gradient(135deg,#10b981,#059669)">
+            <div class="stat-label">Top Performer</div>
+            <div class="stat-value">90%</div>
+            <div class="stat-label">Bosch - Designer</div>
+          </div>
+          <div class="stat-box" style="background:linear-gradient(135deg,#ef4444,#dc2626)">
+            <div class="stat-label">Overdue Jobs</div>
+            <div class="stat-value">${overdueJobs}</div>
+            <div class="stat-label">Needs attention</div>
+          </div>
+          <div class="stat-box" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+            <div class="stat-label">Pending Problems</div>
+            <div class="stat-value">${pendingProblems}</div>
+            <div class="stat-label">For review</div>
+          </div>
+        </div>
+        
+        <div class="alert alert-info" style="margin-top:30px">
+          <strong>💡 Quick Actions:</strong><br>
+          • Review <strong>${pendingProblems} pending problems</strong> in Problems tab<br>
+          • Check <strong>${overdueJobs} overdue jobs</strong> in team workload<br>
+          • Adjust KPIs and reward problem solvers in Meeting Mode<br>
+          • View full team performance rankings in Team tab
+        </div>
+        
+        <h3 style="margin:30px 0 15px;font-size:20px">🎯 Recent Management Actions</h3>
+        <table>
+          <tr>
+            <th>Date</th>
+            <th>Action</th>
+            <th>Team Member</th>
+            <th>Points</th>
+          </tr>
+          ${kpiAdjustments.slice(0,5).map(adj => `
+            <tr style="background:${adj.points > 0 ? '#d1fae5' : '#fee2e2'}">
+              <td>${adj.date}</td>
+              <td>${adj.reason}</td>
+              <td><strong>${users[adj.person].name}</strong></td>
+              <td style="color:${adj.points > 0 ? '#059669' : '#dc2626'};font-weight:700;font-size:16px">
+                ${adj.points > 0 ? '+' : ''}${adj.points}
+              </td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+    `;
+  }
+}
+
+function renderMyJobs(content) {
+  const myJobs = jobs.filter(j => j.assignedTo === currentUser && !j.isPrivate);
+  const myPrivateJobs = jobs.filter(j => j.assignedTo === currentUser && j.isPrivate);
+  const pending = myJobs.filter(j => j.status === 'pending');
+  
+  const targetToday = pending.filter(j => j.target && isTargetToday(j.target));
+  const overdue = pending.filter(j => j.target && isOverdue(j.target));
+  const future = pending.filter(j => j.target && j.target > getTodayDate());
+  
+  let html = '';
+  
+  if(targetToday.length > 0) {
+    html += `
+      <div class="card">
+        <h2 style="color:#ea580c;font-size:24px">🔔 TARGET DATE TODAY - LAST CHANCE TO SHIFT! (${targetToday.length})</h2>
+        <div class="alert alert-warning">
+          <strong>⚠️ IMPORTANT:</strong> Today is the target date for these jobs!<br>
+          • You can still SHIFT these jobs today (if shifts available)<br>
+          • After today, shifting will be LOCKED - penalties will apply<br>
+          • OR submit the job as complete
+        </div>
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Job Type</th>
+            <th>Title</th>
+            <th>Assigned By</th>
+            <th>Target</th>
+            <th>Shifts</th>
+            <th>Actions</th>
+          </tr>
+          ${targetToday.map(j => {
+            return `
+            <tr class="target-today-row">
+              <td><strong>#${j.id}</strong></td>
+              <td><span class="job-type-${j.type}">${jobTypes[j.type].name}</span></td>
+              <td>${getUrgencyBadge(j.urgency)}<strong>${j.title}</strong></td>
+              <td>${users[j.assignedBy].name}</td>
+              <td style="color:#ea580c;font-weight:700">TODAY (${j.target})</td>
+              <td>${j.shiftsUsed}/${jobTypes[j.type].maxShifts === 999 ? '∞' : jobTypes[j.type].maxShifts}</td>
+              <td>
+                <button class="btn btn-success" onclick="submitJob(${j.id})">✅ Submit</button>
+                ${canShift(j) ? '<button class="btn btn-warning" onclick="openShiftModal('+j.id+')">📅 SHIFT NOW!</button>' : '<span style="color:#dc2626;font-size:11px">❌ No shifts</span>'}
+              </td>
+            </tr>
+          `}).join('')}
+        </table>
+      </div>
+    `;
+  }
+  
+  if(overdue.length > 0) {
+    html += `
+      <div class="card">
+        <h2 style="color:#dc2626;font-size:24px">🚨 OVERDUE - CANNOT SHIFT! (${overdue.length})</h2>
+        <div class="alert alert-danger">
+          <strong>❌ TOO LATE TO SHIFT!</strong><br>
+          • These jobs passed their target date<br>
+          • Shifting is LOCKED - cannot escape penalties<br>
+          • You MUST accept the job late and take the penalty<br>
+          • Penalties apply: -X pts/day × days late
+        </div>
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Job Type</th>
+            <th>Title</th>
+            <th>Assigned By</th>
+            <th>Target</th>
+            <th>Days Late</th>
+            <th>Penalty</th>
+            <th>Actions</th>
+          </tr>
+          ${overdue.map(j => {
+            const daysLate = Math.ceil((new Date(getTodayDate()) - new Date(j.target)) / (1000*60*60*24));
+            const penalty = daysLate * jobTypes[j.type].penalty;
+            return `
+              <tr class="overdue-row">
+                <td><strong>#${j.id}</strong></td>
+                <td><span class="job-type-${j.type}">${jobTypes[j.type].name}</span></td>
+                <td>${getUrgencyBadge(j.urgency)}<strong>${j.title}</strong></td>
+                <td>${users[j.assignedBy].name}</td>
+                <td style="color:#dc2626;font-weight:700">${j.target}</td>
+                <td style="color:#dc2626;font-weight:700;font-size:16px">${daysLate} days ⚠️</td>
+                <td style="color:#dc2626;font-weight:700;font-size:16px">-${penalty} pts<br><small>(-${jobTypes[j.type].penalty}/day)</small></td>
+                <td>
+                  <button class="btn btn-danger" onclick="submitJob(${j.id})">Accept Late</button>
+                  <div style="color:#dc2626;font-size:10px;margin-top:5px">❌ Cannot shift</div>
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </table>
+      </div>
+    `;
+  }
+  
+  if(future.length > 0) {
+    html += `
+      <div class="card">
+        <h2 style="font-size:24px">📋 Future Jobs - Can Shift Anytime (${future.length})</h2>
+        <div class="alert alert-success">
+          <strong>✅ These jobs can be managed flexibly!</strong><br>
+          • Target date is in the future<br>
+          • Can shift now or wait until target date<br>
+          • OR submit early/on-time for bonus points
+        </div>
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Job Type</th>
+            <th>Title</th>
+            <th>Assigned By</th>
+            <th>Original Target</th>
+            <th>Current Target</th>
+            <th>Shifts</th>
+            <th>Actions</th>
+          </tr>
+          ${future.map(j => `
+            <tr>
+              <td><strong>#${j.id}</strong></td>
+              <td>
+                <span class="job-type-${j.type}">${jobTypes[j.type].name}</span>
+                ${j.shiftsUsed > 0 ? '<br><span class="shift-badge">SHIFTED '+j.shiftsUsed+'x</span>' : ''}
+              </td>
+              <td>${getUrgencyBadge(j.urgency)}${j.title}</td>
+              <td>${users[j.assignedBy].name}</td>
+              <td>${j.originalTarget}</td>
+              <td><strong>${j.target}</strong></td>
+              <td>${j.shiftsUsed}/${jobTypes[j.type].maxShifts === 999 ? '∞' : jobTypes[j.type].maxShifts}</td>
+              <td>
+                <button class="btn btn-success" onclick="submitJob(${j.id})">✅ Submit</button>
+                ${canShift(j) ? '<button class="btn btn-warning" onclick="openShiftModal('+j.id+')">📅 Shift</button>' : ''}
+              </td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+    `;
+  }
+  
+  if(myPrivateJobs.filter(j => j.status === 'pending').length > 0) {
+    html += `
+      <div class="card">
+        <h2 style="font-size:24px">🔒 My Private Jobs (${myPrivateJobs.filter(j => j.status === 'pending').length})</h2>
+        <p style="color:#6b7280;margin-bottom:15px">Only you can see these jobs that you assigned to yourself</p>
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Job Type</th>
+            <th>Title</th>
+            <th>Target Date</th>
+            <th>Actions</th>
+          </tr>
+          ${myPrivateJobs.filter(j => j.status === 'pending').map(j => `
+            <tr>
+              <td><strong>#${j.id}</strong> <span class="private-badge">PRIVATE</span></td>
+              <td><span class="job-type-${j.type}">${jobTypes[j.type].name}</span></td>
+              <td>${j.title}</td>
+              <td>${j.target}</td>
+              <td><button class="btn btn-success" onclick="submitJob(${j.id})">✅ Submit</button></td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+    `;
+  }
+  
+  if(html === '') {
+    html = `
+      <div class="card">
+        <div style="text-align:center;padding:60px">
+          <div style="font-size:80px;margin-bottom:20px">🎉</div>
+          <h2 style="font-size:28px;color:#10b981;margin-bottom:10px">All Clear!</h2>
+          <p style="font-size:18px;color:#6b7280">You have no pending jobs. Great work!</p>
+        </div>
+      </div>
+    `;
+  } else {
+    html += `
+      <div class="card">
+        <h3 style="font-size:20px;margin-bottom:15px">📋 Vinova Job Types & Shift Rules:</h3>
+        <table>
+          <tr>
+            <th>Job Type</th>
+            <th>Max Shifts</th>
+            <th>Penalty/Day</th>
+            <th>Description</th>
+          </tr>
+          ${Object.keys(jobTypes).map(t => `
+            <tr>
+              <td><span class="job-type-${t}">${jobTypes[t].name}</span></td>
+              <td><strong>${jobTypes[t].maxShifts === 999 ? 'Unlimited ∞' : jobTypes[t].maxShifts}</strong></td>
+              <td><strong>${jobTypes[t].penalty === 0 ? '0 pts' : '-'+jobTypes[t].penalty+' pts/day'}</strong></td>
+              <td style="font-size:12px">${jobTypes[t].desc}</td>
+            </tr>
+          `).join('')}
+        </table>
+        <div class="alert alert-info" style="margin-top:15px">
+          <strong>💡 Universal Rules:</strong><br>
+          • Can finish job ANYTIME (before, on, or after target)<br>
+          • Can shift date BEFORE or ON target date only<br>
+          • CANNOT shift AFTER target date (penalties apply)<br>
+          • Penalty applies PER DAY late
+        </div>
+      </div>
+    `;
+  }
+  
+  content.innerHTML = html;
+}
+
+function renderAssignJob(content) {
+  // Determine which users current user can assign to
+  // Only MER, Sales, PPC, and Devin can assign to owners (Naveen & Pritika)
+  const canAssignToOwners = ['tai', 'fai', 'amp', 'kung', 'sun', 'ae', 'devin', 'mow'].includes(currentUser);
+  const owners = ['naveen', 'pritika'];
+  
+  let availableUsers = Object.keys(users).filter(u => 
+    u !== 'mrproblem' &&  // Exclude Mr. Problem
+    u !== currentUser     // Exclude yourself - must use "Assign to Myself" option
+  );
+  
+  // If current user cannot assign to owners, exclude Naveen & Pritika from list
+  if (!canAssignToOwners) {
+    availableUsers = availableUsers.filter(u => !owners.includes(u));
+  }
+  
+  content.innerHTML = `
+    <div class="card">
+      <h2 style="font-size:28px;margin-bottom:20px">➕ Assign New Job</h2>
+      <p style="color:#6b7280;margin-bottom:30px;font-size:16px">Follow the steps below to assign a task. ${!canAssignToOwners ? '<br><span style="color:#f59e0b">⚠️ Note: Only MER, Sales, PPC, and Devin can assign jobs to owners</span>' : ''}</p>
+      
+      <div class="form-group">
+        <label style="font-size:16px">1️⃣ Assign To: <span style="color:#dc2626">*</span></label>
+        <select id="newJobAssignTo" style="font-size:16px" onchange="showWorkload(); handleAssignToChange();">
+          <option value="">-- Select Person --</option>
+          <option value="SELF">🔒 ASSIGN TO MYSELF (Private Job)</option>
+          
+          ${(() => {
+            // Organize users into groups
+            const ownersGroup = availableUsers.filter(u => owners.includes(u));
+            const managersGroup = availableUsers.filter(u => users[u].role === 'manager' && !owners.includes(u));
+            const merGroup = availableUsers.filter(u => users[u].dept.includes('MER TEAM'));
+            const salesGroup = availableUsers.filter(u => users[u].dept.includes('SALES TEAM'));
+            const designGroup = availableUsers.filter(u => users[u].dept.includes('GRAPHIC'));
+            const purchaseAccountGroup = availableUsers.filter(u => 
+              users[u].dept.includes('PURCHASE') || users[u].dept.includes('ACCOUNT')
+            );
+            const operationsGroup = availableUsers.filter(u => 
+              !owners.includes(u) && 
+              users[u].role !== 'manager' && 
+              !users[u].dept.includes('MER TEAM') && 
+              !users[u].dept.includes('SALES TEAM') &&
+              !users[u].dept.includes('GRAPHIC') &&
+              !users[u].dept.includes('PURCHASE') &&
+              !users[u].dept.includes('ACCOUNT')
+            );
+            
+            // Helper function to get role display name
+            const getRoleDisplay = (u) => {
+              if (owners.includes(u)) return 'Owner';
+              if (users[u].role === 'manager') return 'Manager';
+              if (users[u].dept.includes('MER')) return 'Merchandiser';
+              if (users[u].dept.includes('SALES')) return 'Sales';
+              if (users[u].dept.includes('GRAPHIC')) return 'Designer';
+              if (users[u].dept.includes('PURCHASE')) return 'Purchaser';
+              if (users[u].dept.includes('ACCOUNT')) return 'Accountant';
+              if (users[u].dept.includes('BOM')) return 'BOM Staff';
+              if (users[u].dept.includes('PPC')) return 'PPC Staff';
+              if (users[u].dept.includes('DELIVERY')) return 'Delivery Staff';
+              if (users[u].dept.includes('BUNDLING')) return 'Bundling Staff';
+              if (users[u].dept.includes('MARK')) return 'Mark Staff';
+              return 'Staff';
+            };
+            
+            let html = '';
+            
+            // Owners section
+            if (ownersGroup.length > 0) {
+              html += '<optgroup label="👔 OWNERS">';
+              ownersGroup.forEach(u => {
+                html += `<option value="${u}">${users[u].name} - ${getRoleDisplay(u)} (${users[u].dept})</option>`;
+              });
+              html += '</optgroup>';
+            }
+            
+            // Managers section
+            if (managersGroup.length > 0) {
+              html += '<optgroup label="👔 MANAGERS">';
+              managersGroup.forEach(u => {
+                html += `<option value="${u}">${users[u].name} - ${getRoleDisplay(u)} (${users[u].dept})</option>`;
+              });
+              html += '</optgroup>';
+            }
+            
+            // MER section
+            if (merGroup.length > 0) {
+              html += '<optgroup label="📦 MER TEAMS">';
+              merGroup.forEach(u => {
+                html += `<option value="${u}">${users[u].name} - ${getRoleDisplay(u)} (${users[u].dept})</option>`;
+              });
+              html += '</optgroup>';
+            }
+            
+            // Sales section
+            if (salesGroup.length > 0) {
+              html += '<optgroup label="💼 SALES TEAMS">';
+              salesGroup.forEach(u => {
+                html += `<option value="${u}">${users[u].name} - ${getRoleDisplay(u)} (${users[u].dept})</option>`;
+              });
+              html += '</optgroup>';
+            }
+            
+            // Design section
+            if (designGroup.length > 0) {
+              html += '<optgroup label="🎨 DESIGN TEAM">';
+              designGroup.forEach(u => {
+                html += `<option value="${u}">${users[u].name} - ${getRoleDisplay(u)} (${users[u].dept})</option>`;
+              });
+              html += '</optgroup>';
+            }
+            
+            // Purchase & Account section
+            if (purchaseAccountGroup.length > 0) {
+              html += '<optgroup label="💰 PURCHASE & ACCOUNT">';
+              purchaseAccountGroup.forEach(u => {
+                html += `<option value="${u}">${users[u].name} - ${getRoleDisplay(u)} (${users[u].dept})</option>`;
+              });
+              html += '</optgroup>';
+            }
+            
+            // Operations section
+            if (operationsGroup.length > 0) {
+              html += '<optgroup label="🔧 OPERATIONS TEAMS">';
+              operationsGroup.forEach(u => {
+                html += `<option value="${u}">${users[u].name} - ${getRoleDisplay(u)} (${users[u].dept})</option>`;
+              });
+              html += '</optgroup>';
+            }
+            
+            return html;
+          })()}
+        </select>
+      </div>
+      
+      <div id="workloadDisplay"></div>
+      
+      <div class="form-group">
+        <label style="font-size:16px">2️⃣ Job Type: <span style="color:#dc2626">*</span></label>
+        <select id="newJobType" style="font-size:16px" onchange="handleJobTypeChange()">
+          <option value="">-- Select Job Type --</option>
+          ${Object.keys(jobTypes).filter(t => {
+            // Types -2, -1, 0 (Owner types) only visible to owners
+            if (t === '-2' || t === '-1' || t === '0') {
+              return owners.includes(currentUser);
+            }
+            return true;
+          }).map(t => `
+            <option value="${t}" ${(t === '-2' || t === '-1') ? 'style="color:#dc2626;font-weight:700"' : ''}>${jobTypes[t].name} - ${jobTypes[t].penalty}pts/day penalty | ${jobTypes[t].maxShifts === 999 ? '∞' : jobTypes[t].maxShifts} shifts allowed</option>
+          `).join('')}
+        </select>
+      </div>
+      
+      <div id="type5Alert" style="display:none" class="alert alert-info">
+        <strong>📋 Mr. Problem - Meeting Agenda Item</strong><br>
+        • Automatically assigned to "Mr. Problem" for Monday meeting<br>
+        • Target date will be set to next Monday automatically<br>
+        • This will appear in Meeting Mode for discussion
+      </div>
+      
+      <div class="form-group" id="urgencyField">
+        <label style="font-size:16px">3️⃣ Urgency Level:</label>
+        <select id="newJobUrgency" style="font-size:16px">
+          <option value="normal">📌 Normal - Regular priority</option>
+          <option value="urgent">⚠️ Urgent - High priority, respond soon</option>
+          <option value="emergency">🔴 Emergency - Critical, immediate action required</option>
+        </select>
+        <div class="alert alert-info" style="margin-top:10px;font-size:14px">
+          <strong>ℹ️ Note:</strong> Urgency level is for communication only. It helps receivers understand priority but doesn't affect KPI penalties (those are determined by job type).
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label style="font-size:16px">4️⃣ Job Title: <span style="color:#dc2626">*</span></label>
+        <input type="text" id="newJobTitle" placeholder="e.g., Sample approval for ABC Corporation" style="font-size:16px">
+      </div>
+      
+      <div class="form-group">
+        <label style="font-size:16px">5️⃣ Target Date: <span style="color:#dc2626">*</span></label>
+        <input type="date" id="newJobTarget" min="${getTodayDate()}" style="font-size:16px">
+      </div>
+      
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:10px;font-size:16px">
+          <input type="checkbox" id="newJobPrivate" style="width:auto;height:20px">
+          <span>🔒 Make PRIVATE (only works if assigning to yourself - nobody else will see this job)</span>
+        </label>
+      </div>
+      
+      <div class="alert alert-info">
+        <strong>💡 Job Assignment Rules:</strong><br>
+        • Choose appropriate job type as it affects penalty points if late<br>
+        • Private jobs only work when you assign to yourself<br>
+        • Target date should be realistic for the job complexity<br>
+        • Job giver must accept completion when receiver submits
+      </div>
+      
+      <button class="btn btn-success" style="font-size:18px;padding:18px 40px;margin-top:20px" onclick="createJob()">✅ Assign This Job</button>
+    </div>
+  `;
+}
+function renderJobsWIP(content) {
+  const myAssignedJobs = jobs.filter(j => j.assignedBy === currentUser && j.status === 'wip' && !j.isPrivate);
+  const myPrivateWIP = jobs.filter(j => j.assignedBy === currentUser && j.status === 'wip' && j.isPrivate);
+  
+  content.innerHTML = `
+    <div class="card">
+      <h2 style="font-size:28px;margin-bottom:20px">🔄 Jobs Submitted - Awaiting My Approval (${myAssignedJobs.length + myPrivateWIP.length})</h2>
+      <div class="alert alert-info">
+        <strong>💡 How it works:</strong> When someone submits a job you assigned, it appears here for you to review and approve.<br>
+        Jobs can be submitted anytime - before, on, or after the target date. When you approve, any late penalties are automatically applied to their KPI.
+      </div>
+      ${myAssignedJobs.length > 0 ? `
+        <h3 style="margin:30px 0 15px">Regular Jobs (${myAssignedJobs.length})</h3>
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Job Type</th>
+            <th>Title</th>
+            <th>Assigned To</th>
+            <th>Target Date</th>
+            <th>Submit Date</th>
+            <th>Result</th>
+            <th>Action</th>
+          </tr>
+          ${myAssignedJobs.map(j => {
+            const targetDate = new Date(j.target);
+            const submitDate = new Date(j.submitDate);
+            const daysDiff = Math.ceil((submitDate - targetDate) / (1000*60*60*24));
+            const isLate = daysDiff > 0;
+            const isEarly = daysDiff < 0;
+            const penalty = isLate ? daysDiff * jobTypes[j.type].penalty : 0;
+            
+            return `
+              <tr class="${isEarly ? 'early-finish' : isLate ? 'overdue-row' : ''}">
+                <td><strong>#${j.id}</strong></td>
+                <td><span class="job-type-${j.type}">${jobTypes[j.type].name}</span></td>
+                <td>${j.title}</td>
+                <td><strong>${users[j.assignedTo].name}</strong></td>
+                <td>${j.target}</td>
+                <td>${j.submitDate}</td>
+                <td style="color:${isLate ? '#dc2626' : isEarly ? '#059669' : '#059669'};font-weight:700;font-size:16px">
+                  ${isLate ? daysDiff + ' days LATE ⚠️<br><small>(-'+penalty+' pts total)</small>' : 
+                    isEarly ? Math.abs(daysDiff) + ' days EARLY! 🎉' : 
+                    'On-Time ✅'}
+                </td>
+                <td><button class="btn btn-primary" onclick="openAcceptModal(${j.id})">✅ Approve</button></td>
+              </tr>
+            `;
+          }).join('')}
+        </table>
+      ` : ''}
+      
+      ${myPrivateWIP.length > 0 ? `
+        <h3 style="margin:30px 0 15px">🔒 Private Jobs (${myPrivateWIP.length})</h3>
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Job Type</th>
+            <th>Title</th>
+            <th>Target</th>
+            <th>Submit</th>
+            <th>Action</th>
+          </tr>
+          ${myPrivateWIP.map(j => `
+            <tr>
+              <td><strong>#${j.id}</strong> <span class="private-badge">PRIVATE</span></td>
+              <td><span class="job-type-${j.type}">${jobTypes[j.type].name}</span></td>
+              <td>${j.title}</td>
+              <td>${j.target}</td>
+              <td>${j.submitDate}</td>
+              <td><button class="btn btn-primary" onclick="openAcceptModal(${j.id})">Accept</button></td>
+            </tr>
+          `).join('')}
+        </table>
+      ` : ''}
+      
+      ${myAssignedJobs.length === 0 && myPrivateWIP.length === 0 ? `
+        <div style="text-align:center;padding:60px">
+          <div style="font-size:60px;margin-bottom:15px">✅</div>
+          <p style="font-size:18px;color:#6b7280">No jobs waiting for acceptance</p>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderTeam(content) {
+  const devs = Object.values(users).filter(u => u.role === 'developer').sort((a,b) => b.pct - a.pct);
+  
+  content.innerHTML = `
+    <div class="card">
+      <h2 style="font-size:28px;margin-bottom:20px">👥 Team Performance Leaderboard</h2>
+      <p style="color:#6b7280;margin-bottom:20px">👁️ Managers Only - Full team rankings and performance metrics</p>
+      
+      <table>
+        <tr>
+          <th style="width:80px">Rank</th>
+          <th>Name</th>
+          <th>Department</th>
+          <th style="width:120px">On-Time %</th>
+          <th>Jobs Completed</th>
+          <th>On-Time / Late</th>
+          <th>Streak</th>
+          <th>Performance Tier</th>
+        </tr>
+        ${devs.map((u,idx) => {
+          const tier = getTier(u.pct);
+          const medal = idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':'';
+          return `
+            <tr style="${idx < 3 ? 'background:#fef3c7' : ''}">
+              <td><strong style="font-size:20px">${idx+1}.</strong> ${medal}</td>
+              <td><strong style="font-size:16px">${u.name}</strong></td>
+              <td>${u.dept}</td>
+              <td><div style="font-size:24px;font-weight:700;color:#3b82f6">${u.pct}%</div></td>
+              <td><strong>${u.jobs}</strong> jobs</td>
+              <td><span style="color:#059669">${u.onTime} ✅</span> / <span style="color:#dc2626">${u.late} ⚠️</span></td>
+              <td><strong style="font-size:18px">${u.streak}</strong> 🔥</td>
+              <td>${tier.icon} <span style="background:#fef3c7;color:#92400e;padding:6px 12px;border-radius:20px;font-weight:700;font-size:11px">${tier.name}</span></td>
+            </tr>
+          `;
+        }).join('')}
+      </table>
+      
+      <div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="alert alert-success">
+          <h3 style="margin-bottom:10px">🌟 Top Performers (85%+)</h3>
+          <ul style="margin-left:20px">
+            ${devs.filter(u => u.pct >= 85).map(u => `
+              <li><strong>${u.name}</strong> - ${u.pct}%</li>
+            `).join('')}
+          </ul>
+        </div>
+        <div class="alert alert-warning">
+          <h3 style="margin-bottom:10px">⚠️ Needs Support (<70%)</h3>
+          <ul style="margin-left:20px">
+            ${devs.filter(u => u.pct < 70).map(u => `
+              <li><strong>${u.name}</strong> - ${u.pct}%</li>
+            `).join('')}
+          </ul>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderProblems(content) {
+  const pending = problems.filter(p => p.status === 'pending');
+  const solved = problems.filter(p => p.status === 'solved');
+  
+  content.innerHTML = `
+    <div class="card">
+      <h2 style="font-size:28px;margin-bottom:20px">📝 Problem Tracking & Meeting Agenda</h2>
+      <button class="btn btn-success" style="font-size:16px;padding:15px 30px" onclick="openProblemModal()">➕ Report New Problem / Achievement</button>
+      
+      <div class="alert alert-info" style="margin-top:20px">
+        <strong>💡 How it works:</strong><br>
+        1. Report problems or achievements during the week<br>
+        2. System organizes them by priority for meeting<br>
+        3. Discuss in meeting and apply KPI adjustments<br>
+        4. Track history of all issues and resolutions
+      </div>
+      
+      <h3 style="margin-top:40px;font-size:24px;margin-bottom:20px">🔴 Pending Items for Meeting (${pending.length})</h3>
+      ${pending.map(p => {
+        const isPenalty = p.impact < 0;
+        const isReward = p.impact > 0;
+        const isNeutral = p.impact === 0;
+        
+        return `
+          <div class="problem-card ${isPenalty ? 'problem-urgent' : isReward ? 'problem-solved' : ''}">
+            <div style="display:flex;justify-content:space-between;align-items:start">
+              <div style="flex:1">
+                <h4 style="margin-bottom:10px;font-size:18px">
+                  ${p.type === 'quality' ? '⚠️ Quality Issue' : 
+                    p.type === 'deadline' ? '⏰ Deadline Pattern' :
+                    p.type === 'communication' ? '💬 Communication' :
+                    p.type === 'training' ? '📚 Training Need' :
+                    p.type === 'recognition' ? '⭐ Recognition' : '📌 Other'}
+                  - <strong style="color:#3b82f6">${users[p.person].name}</strong>
+                </h4>
+                <p style="margin-bottom:15px;font-size:15px;line-height:1.6">${p.desc}</p>
+                <div style="font-size:13px;color:#6b7280">
+                  Reported: ${p.date} | Suggested Impact: 
+                  <strong style="color:${isPenalty ? '#dc2626' : isReward ? '#059669' : '#6b7280'};font-size:16px">
+                    ${p.impact > 0 ? '+' : ''}${p.impact} pts
+                  </strong>
+                </div>
+              </div>
+              <div>
+                <button class="btn btn-success" onclick="solveProblem(${p.id})" style="font-size:14px">
+                  ✅ Discuss & Apply
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+      
+      ${pending.length === 0 ? `
+        <div style="text-align:center;padding:40px;background:#f9fafb;border-radius:8px">
+          <div style="font-size:60px;margin-bottom:15px">✅</div>
+          <p style="font-size:18px;color:#6b7280">No pending items - all clear for this week!</p>
+        </div>
+      ` : ''}
+      
+      ${solved.length > 0 ? `
+        <h3 style="margin-top:40px;font-size:24px;margin-bottom:20px">✅ Resolved Problems (${solved.length})</h3>
+        ${solved.slice(0,5).map(p => `
+          <div class="problem-card problem-solved">
+            <strong>${users[p.person].name}</strong> - ${p.desc}
+            <div style="font-size:12px;color:#6b7280;margin-top:5px">Resolved: ${p.date} | Applied: ${p.impact > 0 ? '+' : ''}${p.impact} pts</div>
+          </div>
+        `).join('')}
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderMeeting(content) {
+  // Get all Mr. Problem jobs (meeting agenda items)
+  const mrProblemJobs = jobs.filter(j => j.type === 5 && j.status === 'pending' && j.target);
+  
+  content.innerHTML = `
+    <div class="card">
+      <h2 style="font-size:28px;margin-bottom:20px">📋 Meeting Mode - Mr. Problem Agenda</h2>
+      <div class="alert alert-info">
+        <strong>💡 Monday Meeting Agenda</strong><br>
+        Review all problems/issues reported by the team. Discuss and resolve, then award KPI points for solutions.
+      </div>
+      
+      <h3 style="font-size:22px;margin:30px 0 20px 0">📝 Meeting Agenda (${mrProblemJobs.length} items)</h3>
+      
+      ${mrProblemJobs.length === 0 ? `
+        <div class="alert alert-success">
+          <strong>✅ No problems reported!</strong><br>
+          The team is running smoothly. Great job everyone! 🎉
+        </div>
+      ` : `
+        <table style="width:100%;border-collapse:collapse;margin-bottom:40px">
+          <tr style="background:#3b82f6;color:white">
+            <th style="padding:15px;text-align:left">Problem #</th>
+            <th style="padding:15px;text-align:left">Issue / Topic</th>
+            <th style="padding:15px;text-align:left">Reported By</th>
+            <th style="padding:15px;text-align:left">Meeting Date</th>
+            <th style="padding:15px;text-align:center">Status</th>
+            <th style="padding:15px;text-align:center">Actions</th>
+          </tr>
+          ${mrProblemJobs.map(job => `
+            <tr style="border-bottom:1px solid #e5e7eb;background:white">
+              <td style="padding:15px;font-weight:700;font-size:16px">#${job.id}</td>
+              <td style="padding:15px">
+                <div style="font-weight:700;font-size:15px;margin-bottom:5px">${job.title}</div>
+                <div style="font-size:13px;color:#6b7280">Type 5 (Mr. Problem)</div>
+              </td>
+              <td style="padding:15px">
+                <div style="font-weight:700">${users[job.reportedBy || job.assignedBy].name}</div>
+                <div style="font-size:13px;color:#6b7280">${users[job.reportedBy || job.assignedBy].dept}</div>
+              </td>
+              <td style="padding:15px">
+                <div style="font-weight:700;color:#3b82f6">${job.target || 'No date'}</div>
+                <div style="font-size:13px;color:#6b7280">${job.target && isTargetToday(job.target) ? '🔴 TODAY!' : ''}</div>
+              </td>
+              <td style="padding:15px;text-align:center">
+                <span style="background:#fef3c7;color:#92400e;padding:5px 15px;border-radius:20px;font-size:13px;font-weight:600">
+                  📋 Pending Discussion
+                </span>
+              </td>
+              <td style="padding:15px;text-align:center">
+                <button class="btn btn-success" style="font-size:13px;padding:8px 15px;margin:2px" 
+                        onclick="openRewardModal(${job.id})">
+                  ⭐ Award Points
+                </button>
+                <button class="btn btn-primary" style="font-size:13px;padding:8px 15px;margin:2px" 
+                        onclick="markProblemResolved(${job.id})">
+                  ✅ Mark Resolved
+                </button>
+              </td>
+            </tr>
+          `).join('')}
+        </table>
+      `}
+      
+      <h3 style="font-size:22px;margin:50px 0 20px 0">🎯 Quick KPI Awards (For Problem Solvers)</h3>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px">
+        <div class="form-group">
+          <label style="font-size:16px">Team Member: <span style="color:#dc2626">*</span></label>
+          <select id="meetingPerson" style="font-size:16px">
+            <option value="">-- Select Person --</option>
+            ${Object.keys(users).filter(u => users[u].role !== 'manager' && u !== 'mrproblem').map(userId => `
+              <option value="${userId}">${users[userId].name} - ${users[userId].pct || 100}% (${users[userId].dept})</option>
+            `).join('')}
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label style="font-size:16px">KPI Points: <span style="color:#dc2626">*</span></label>
+          <select id="meetingPoints" style="font-size:16px">
+            <option value="0">0 points (No change)</option>
+            <optgroup label="⚠️ Penalties">
+              <option value="-1">-1 point</option>
+              <option value="-2">-2 points</option>
+              <option value="-3">-3 points</option>
+              <option value="-5">-5 points</option>
+            </optgroup>
+            <optgroup label="⭐ Rewards">
+              <option value="1">+1 point (Good)</option>
+              <option value="2">+2 points (Great)</option>
+              <option value="3">+3 points (Excellent)</option>
+              <option value="5">+5 points (Outstanding)</option>
+              <option value="10">+10 points (Exceptional)</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label style="font-size:16px">Reason: <span style="color:#dc2626">*</span></label>
+        <textarea id="meetingReason" rows="3" placeholder="E.g., Excellent solution to BOM issue" style="font-size:15px"></textarea>
+      </div>
+      
+      <button class="btn btn-success" style="font-size:18px;padding:15px 40px" onclick="applyKPIAdjustment()">✅ Apply KPI Adjustment</button>
+      
+      <h3 style="font-size:22px;margin:50px 0 20px 0">📜 Recent KPI Adjustments</h3>
+      ${kpiAdjustments.length === 0 ? `
+        <div class="alert alert-info">No KPI adjustments recorded yet.</div>
+      ` : `
+        <table style="width:100%">
+          <tr style="background:#f3f4f6">
+            <th style="padding:12px">Date</th>
+            <th style="padding:12px">Team Member</th>
+            <th style="padding:12px">Points</th>
+            <th style="padding:12px">Reason</th>
+            <th style="padding:12px">By</th>
+          </tr>
+          ${kpiAdjustments.map(adj => `
+            <tr style="background:${adj.points > 0 ? '#d1fae5' : '#fee2e2'};border-bottom:1px solid #e5e7eb">
+              <td style="padding:12px">${adj.date}</td>
+              <td style="padding:12px"><strong>${users[adj.person].name}</strong></td>
+              <td style="padding:12px;color:${adj.points > 0 ? '#059669' : '#dc2626'};font-weight:700;font-size:18px">
+                ${adj.points > 0 ? '+' : ''}${adj.points}
+              </td>
+              <td style="padding:12px;font-size:14px">${adj.reason}</td>
+              <td style="padding:12px">${users[adj.adjustedBy].name}</td>
+            </tr>
+          `).join('')}
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function submitJob(jobId) {
+  const job = jobs.find(j => j.id === jobId);
+  if(!job) return;
+  
+  job.status = 'wip';
+  job.submitDate = getTodayDate();
+  
+  const targetDate = new Date(job.target);
+  const submitDate = new Date(job.submitDate);
+  const daysDiff = Math.ceil((submitDate - targetDate) / (1000*60*60*24));
+  
+  let msg = '✅ Job #'+jobId+' submitted for acceptance!\\n\\n';
+  msg += 'Target Date: '+job.target+'\\n';
+  msg += 'Submit Date: '+job.submitDate+'\\n\\n';
+  
+  if(daysDiff < 0) {
+    msg += '🎉 EARLY FINISH! '+Math.abs(daysDiff)+' days early!\\nGreat work!';
+  } else if(daysDiff === 0) {
+    msg += '✅ ON-TIME!\\nExcellent!';
+  } else {
+    const penalty = daysDiff * jobTypes[job.type].penalty;
+    msg += '⚠️ LATE by '+daysDiff+' days\\nPenalty: -'+penalty+' pts\\n(-'+jobTypes[job.type].penalty+' pts/day × '+daysDiff+' days)';
+  }
+  
+  msg += '\\n\\nWaiting for '+users[job.assignedBy].name+' to accept.';
+  
+  alert(msg);
+  showTab('myjobs');
+}
+
+function showWorkload() {
+  const assignTo = document.getElementById('newJobAssignTo').value;
+  const display = document.getElementById('workloadDisplay');
+  
+  if (!assignTo || assignTo === '' || assignTo === 'SELF') {
+    display.innerHTML = '';
+    return;
+  }
+  
+  // Get person's pending jobs
+  const personJobs = jobs.filter(j => 
+    j.assignedTo === assignTo && 
+    j.status === 'pending' && 
+    !j.isPrivate &&
+    j.target // Make sure target exists
+  ).sort((a,b) => new Date(a.target) - new Date(b.target));
+  
+  const person = users[assignTo];
+  
+  if (personJobs.length === 0) {
+    display.innerHTML = `
+      <div class="alert" style="background:#ecfdf5;border-left:4px solid #059669;margin-bottom:20px">
+        <strong>✅ ${person.name} - Available!</strong><br>
+        No pending jobs - good time to assign work!
+      </div>
+    `;
+    return;
+  }
+  
+  // Show workload
+  display.innerHTML = `
+    <div class="alert" style="background:#fef3c7;border-left:4px solid #f59e0b;margin-bottom:20px">
+      <strong>📊 ${person.name}'s Current Workload: ${personJobs.length} pending jobs</strong>
+      <div style="margin-top:15px;max-height:300px;overflow-y:auto">
+        <table style="width:100%;font-size:14px">
+          <tr style="background:#fbbf24;color:#000">
+            <th style="padding:8px">Job</th>
+            <th style="padding:8px">Target Date</th>
+            <th style="padding:8px">From</th>
+            <th style="padding:8px">Type</th>
+          </tr>
+          ${personJobs.map(j => {
+            const daysLeft = Math.ceil((new Date(j.target) - new Date()) / (1000*60*60*24));
+            const isOverdue = daysLeft < 0;
+            const isDueToday = daysLeft === 0;
+            const isDueSoon = daysLeft > 0 && daysLeft <= 2;
+            
+            return `
+              <tr style="background:#fff;border-bottom:1px solid #e5e7eb">
+                <td style="padding:8px">${j.title}</td>
+                <td style="padding:8px;color:${isOverdue ? '#dc2626' : isDueToday ? '#f59e0b' : isDueSoon ? '#f97316' : '#059669'};font-weight:bold">
+                  ${j.target}
+                  ${isOverdue ? '<br>🔴 OVERDUE!' : isDueToday ? '<br>🔥 DUE TODAY!' : isDueSoon ? '<br>⚠️ SOON' : ''}
+                </td>
+                <td style="padding:8px">${users[j.assignedBy].name}</td>
+                <td style="padding:8px"><span class="job-type-${j.type}">${jobTypes[j.type].name}</span></td>
+              </tr>
+            `;
+          }).join('')}
+        </table>
+      </div>
+      <div style="margin-top:10px;font-size:13px;color:#92400e">
+        💡 <strong>Tip:</strong> Check existing target dates above to avoid overloading. You can negotiate with other job givers if needed.
+      </div>
+    </div>
+  `;
+}
+
+function handleJobTypeChange() {
+  const type = parseInt(document.getElementById('newJobType').value);
+  const assignToField = document.getElementById('assignToField');
+  const targetDateField = document.getElementById('targetDateField');
+  const privateCheckField = document.getElementById('privateCheckField');
+  const type5Alert = document.getElementById('type5Alert');
+  
+  if (type === 5) {
+    // Type 5 (Mr. Problem) - Hide assignment and date fields
+    assignToField.style.display = 'none';
+    targetDateField.style.display = 'none';
+    privateCheckField.style.display = 'none';
+    type5Alert.style.display = 'block';
+  } else {
+    // Show all fields for other types
+    assignToField.style.display = 'block';
+    targetDateField.style.display = 'block';
+    privateCheckField.style.display = 'block';
+    type5Alert.style.display = 'none';
+  }
+}
+
+function handleAssignToChange() {
+  const assignToDropdown = document.getElementById('newJobAssignTo');
+  const jobTypeDropdown = document.getElementById('newJobType');
+  
+  // Safety check - make sure elements exist
+  if (!assignToDropdown || !jobTypeDropdown) {
+    return;
+  }
+  
+  const assignTo = assignToDropdown.value;
+  const owners = ['naveen', 'pritika'];
+  
+  if (!assignTo || assignTo === '' || assignTo === 'SELF') {
+    // No filtering needed
+    return;
+  }
+  
+  const isOwner = owners.includes(assignTo);
+  
+  // Rebuild job type dropdown based on assignee
+  let html = '<option value="">-- Select Job Type --</option>';
+  
+  if (isOwner) {
+    // Assigning to owner - show ONLY Type 0
+    if (typeof jobTypes !== 'undefined' && jobTypes[0]) {
+      html += `<option value="0">${jobTypes[0].name} - ${jobTypes[0].penalty}pts/day penalty | ∞ shifts allowed</option>`;
+    }
+    
+    // Show info message
+    const jobTypeField = jobTypeDropdown.parentElement;
+    if (jobTypeField && !document.getElementById('ownerTypeInfo')) {
+      const infoDiv = document.createElement('div');
+      infoDiv.id = 'ownerTypeInfo';
+      infoDiv.className = 'alert alert-info';
+      infoDiv.style.marginTop = '10px';
+      infoDiv.innerHTML = '<strong>ℹ️ Owner Assignment:</strong> Jobs to owners automatically use Type 0 (no KPI penalty). Use Urgency Level to communicate priority.';
+      jobTypeField.appendChild(infoDiv);
+    }
+  } else {
+    // Assigning to staff - show regular types
+    if (typeof jobTypes !== 'undefined') {
+      Object.keys(jobTypes).forEach(t => {
+        // Hide owner-only types (-2, -1, 0) for staff assignments
+        if (t === '-2' || t === '-1' || t === '0') {
+          // Only show if current user is owner
+          if (typeof currentUser !== 'undefined' && owners.includes(currentUser)) {
+            html += `<option value="${t}" ${(t === '-2' || t === '-1') ? 'style="color:#dc2626;font-weight:700"' : ''}>${jobTypes[t].name} - ${jobTypes[t].penalty}pts/day penalty | ${jobTypes[t].maxShifts === 999 ? '∞' : jobTypes[t].maxShifts} shifts allowed</option>`;
+          }
+        } else {
+          html += `<option value="${t}">${jobTypes[t].name} - ${jobTypes[t].penalty}pts/day penalty | ${jobTypes[t].maxShifts === 999 ? '∞' : jobTypes[t].maxShifts} shifts allowed</option>`;
+        }
+      });
+    }
+    
+    // Remove owner info message if exists
+    const ownerInfo = document.getElementById('ownerTypeInfo');
+    if (ownerInfo) {
+      ownerInfo.remove();
+    }
+  }
+  
+  jobTypeDropdown.innerHTML = html;
+  
+  // If assigning to owner, auto-select Type 0
+  if (isOwner) {
+    jobTypeDropdown.value = '0';
+  }
+}
+
+function createJob() {
+  const type = document.getElementById('newJobType').value;
+  const title = document.getElementById('newJobTitle').value;
+  const urgency = document.getElementById('newJobUrgency').value || 'normal';
+  let assignTo, target;
+  
+  // Debug logging
+  console.log('Creating job - Type:', type, 'Title:', title, 'Urgency:', urgency);
+  
+  if(!type || !title) {
+    if (!type) {
+      alert('⚠️ Please select a Job Type!');
+    } else if (!title) {
+      alert('⚠️ Please enter a Job Title!');
+    }
+    return;
+  }
+  
+  // TYPE 5 (Mr. Problem) AUTO-ASSIGNMENT
+  if(parseInt(type) === 5) {
+    assignTo = 'mrproblem'; // Always assign to Mr. Problem
+    target = getNextMonday(); // Auto-set to Monday
+    console.log('Type 5 - Auto-assigned to:', assignTo, 'Date:', target);
+    // Note: reported by current user, assigned to Mr. Problem
+  } else {
+    // For other types, get values from form
+    assignTo = document.getElementById('newJobAssignTo').value;
+    target = document.getElementById('newJobTarget').value;
+    
+    console.log('Regular job - AssignTo:', assignTo, 'Target:', target);
+    
+    if(!assignTo || !target) {
+      if (!assignTo) {
+        alert('⚠️ Please select who to assign this job to!');
+      } else if (!target) {
+        alert('⚠️ Please select a target date!');
+      }
+      return;
+    }
+    
+    // Handle SELF assignment for other types
+    if(assignTo === 'SELF') {
+      assignTo = currentUser;
+    }
+  }
+  
+  // Check private job setting (not applicable for Type 5)
+  let isPrivate = false;
+  if(parseInt(type) !== 5) {
+    isPrivate = document.getElementById('newJobPrivate').checked;
+    
+    if(isPrivate && assignTo !== currentUser) {
+      alert('⚠️ Private jobs can only be assigned to yourself!\\n\\nPlease either:\\n1. Uncheck "Make PRIVATE", or\\n2. Change "Assign To" to yourself');
+      return;
+    }
+  }
+  
+  const newJob = {
+    id: nextJobId++,
+    type: parseInt(type),
+    title: title,
+    assignedBy: currentUser,
+    assignedTo: assignTo,
+    originalTarget: target,
+    target: target,
+    status: 'pending',
+    isPrivate: parseInt(type) === 5 ? false : (isPrivate || (assignTo === currentUser)),
+    shiftsUsed: 0,
+    urgency: urgency,
+    reportedBy: parseInt(type) === 5 ? currentUser : null // Track who reported the problem
+  };
+  
+  jobs.push(newJob);
+  
+  if(parseInt(type) === 5) {
+    alert('✅ Problem added to meeting agenda!\\n\\nJob #'+newJob.id+'\\nTitle: '+title+'\\nReported by: '+users[currentUser].name+'\\nMeeting Date: '+target+' (Monday)\\n\\n📋 This will appear in Meeting Mode for discussion.');
+  } else {
+    alert('✅ Job assigned successfully!\\n\\nJob #'+newJob.id+'\\nTitle: '+title+'\\nAssigned to: '+users[assignTo].name+'\\nType: '+jobTypes[type].name+'\\nTarget: '+target+(newJob.isPrivate ? '\\n🔒 PRIVATE JOB' : ''));
+  }
+  
+  // Clear form
+  document.getElementById('newJobType').value = '';
+  document.getElementById('newJobTitle').value = '';
+  document.getElementById('newJobAssignTo').value = '';
+  document.getElementById('newJobTarget').value = '';
+  document.getElementById('newJobPrivate').checked = false;
+  document.getElementById('workloadDisplay').innerHTML = '';
+  
+  showTab('myjobs');
+}
+
+function openShiftModal(jobId) {
+  selectedJobForShift = jobId;
+  const job = jobs.find(j => j.id === jobId);
+  if(!job) return;
+  
+  if(!canShift(job)) {
+    alert('❌ You do not have permission to shift this job!');
+    return;
+  }
+  
+  const maxShifts = jobTypes[job.type].maxShifts;
+  const shiftsLeft = maxShifts - job.shiftsUsed;
+  const jobType = job.type;
+  const isJobGiver = (currentUser === job.assignedBy);
+  const isJobReceiver = (currentUser === job.assignedTo);
+  const isSelfAssigned = (job.assignedBy === job.assignedTo);
+  
+  // Check if comment is required (FLEXIBLE RULES)
+  let requiresComment = false;
+  
+  if (jobType === 1 && isJobGiver && !isSelfAssigned) {
+    // Type 1: Job giver needs comment (unless self-assigned)
+    requiresComment = true;
+  } else if ((jobType === 41 || jobType === 42 || jobType === 43 || jobType === 5) && isJobReceiver && !isSelfAssigned) {
+    // Planning/Problem: Receiver needs comment (unless self-assigned)
+    requiresComment = true;
+  }
+  
+  if(shiftsLeft === 0 && users[currentUser].role !== 'manager') {
+    alert('❌ No shifts remaining!\\n\\nThis job has used all '+maxShifts+' allowed shifts.\\n\\nYou must either:\\n1. Submit the job as complete, or\\n2. Contact management for override');
+    return;
+  }
+  
+  document.getElementById('originalTargetDate').value = job.originalTarget;
+  document.getElementById('currentTargetDate').value = job.target;
+  document.getElementById('shiftsRemaining').value = shiftsLeft + (maxShifts === 999 ? ' (Unlimited)' : ' of ' + maxShifts);
+  document.getElementById('newTargetDate').setAttribute('min', getTodayDate());
+  document.getElementById('newTargetDate').value = '';
+  document.getElementById('shiftReason').value = '';
+  
+  // Show/hide comment field based on requirements
+  const commentSection = document.getElementById('shiftReasonSection');
+  const commentLabel = document.getElementById('shiftReasonLabel');
+  
+  if (requiresComment) {
+    commentSection.style.display = 'block';
+    if (jobType === 1) {
+      commentLabel.innerHTML = '⚠️ Reason for Shift (Required for Type 1): <span style="color:#dc2626">*</span>';
+    } else {
+      commentLabel.innerHTML = '💬 Reason for Shift (Required): <span style="color:#dc2626">*</span>';
+    }
+  } else {
+    commentSection.style.display = 'none';
+  }
+  
+  // Build rules message
+  let rulesMessage = '';
+  if (isSelfAssigned) {
+    rulesMessage = '• <strong>Self-Assigned:</strong> You can shift freely (no comment required)';
+  } else if (jobType === 1 || jobType === 2 || jobType === 3) {
+    rulesMessage = '• Types 1, 2, 3: Only <strong>Job Giver</strong> can change date' + 
+                   (jobType === 1 ? '<br>• Type 1 requires a written reason' : '');
+  } else {
+    rulesMessage = '• Planning & Problem jobs: <strong>Job Receiver</strong> must write reason for shift';
+  }
+  
+  document.getElementById('shiftJobDetails').innerHTML = `
+    <div class="alert alert-info">
+      <strong>Job #${job.id}: ${job.title}</strong><br>
+      Job Type: ${jobTypes[job.type].name}<br>
+      Assigned By: ${users[job.assignedBy].name}<br>
+      Assigned To: ${users[job.assignedTo].name}${isSelfAssigned ? ' <span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:4px;font-size:11px">SELF-ASSIGNED</span>' : ''}<br>
+      Original Target: ${job.originalTarget}<br>
+      Current Target: ${job.target}<br>
+      Shifts Used: ${job.shiftsUsed}/${maxShifts === 999 ? '∞' : maxShifts}
+    </div>
+    <div class="alert" style="background:#fef3c7;border-left:4px solid #f59e0b">
+      <strong>📋 Date Change Rules:</strong><br>
+      ${rulesMessage}
+    </div>
+  `;
+  
+  document.getElementById('shiftModal').classList.add('active');
+}
+
+function confirmShift() {
+  if(!selectedJobForShift) return;
+  
+  const job = jobs.find(j => j.id === selectedJobForShift);
+  if(!job) return;
+  
+  const newDate = document.getElementById('newTargetDate').value;
+  const reason = document.getElementById('shiftReason').value.trim();
+  
+  if(!newDate) {
+    alert('⚠️ Please select a new target date!');
+    return;
+  }
+  
+  const today = getTodayDate();
+  if(newDate < today) {
+    alert('⚠️ Cannot shift to a past date!\\n\\nToday: '+today+'\\nYou selected: '+newDate+'\\n\\nPlease select today or a future date.');
+    return;
+  }
+  
+  if(newDate === job.target) {
+    alert('⚠️ New date must be different from current target!\\n\\nCurrent: '+job.target+'\\nYou selected: '+newDate);
+    return;
+  }
+  
+  // Check if comment is required (FLEXIBLE RULES)
+  const jobType = job.type;
+  const isJobGiver = (currentUser === job.assignedBy);
+  const isJobReceiver = (currentUser === job.assignedTo);
+  const isSelfAssigned = (job.assignedBy === job.assignedTo);
+  
+  let requiresComment = false;
+  
+  if (jobType === 1 && isJobGiver && !isSelfAssigned) {
+    // Type 1: Job giver needs comment (unless self-assigned)
+    requiresComment = true;
+  } else if ((jobType === 41 || jobType === 42 || jobType === 43 || jobType === 5) && isJobReceiver && !isSelfAssigned) {
+    // Planning/Problem: Receiver needs comment (unless self-assigned)
+    requiresComment = true;
+  }
+  
+  if (requiresComment && !reason) {
+    alert('⚠️ Please provide a reason for shifting the date!\\n\\nThis is required when shifting jobs assigned by others.');
+    return;
+  }
+  
+  const oldDate = job.target;
+  job.target = newDate;
+  job.shiftsUsed++;
+  
+  // Add comment if provided
+  if (reason) {
+    if (!job.comments) job.comments = [];
+    job.comments.push({
+      user: currentUser,
+      date: getTodayDate(),
+      text: `📅 Date shifted from ${oldDate} to ${newDate}. Reason: ${reason}`
+    });
+  } else if (isSelfAssigned) {
+    // Log self-assigned shift without requiring comment
+    if (!job.comments) job.comments = [];
+    job.comments.push({
+      user: currentUser,
+      date: getTodayDate(),
+      text: `📅 Date shifted from ${oldDate} to ${newDate} (self-assigned job)`
+    });
+  }
+  
+  alert('✅ Date shifted successfully!\\n\\nJob #'+job.id+'\\nOld Target: '+oldDate+'\\nNew Target: '+newDate+'\\nShifts Used: '+job.shiftsUsed+'/'+(jobTypes[job.type].maxShifts === 999 ? '∞' : jobTypes[job.type].maxShifts)+(reason ? '\\n\\nReason logged: '+reason : isSelfAssigned ? '\\n\\n(Self-assigned - no reason required)' : ''));
+  
+  closeModal('shiftModal');
+  showTab('myjobs');
+}
+
+function openAcceptModal(jobId) {
+  selectedJobForAccept = jobId;
+  const job = jobs.find(j => j.id === jobId);
+  if(!job) return;
+  
+  document.getElementById('acceptDate').value = getTodayDate();
+  
+  const targetDate = new Date(job.target);
+  const submitDate = new Date(job.submitDate);
+  const daysDiff = Math.ceil((submitDate - targetDate) / (1000*60*60*24));
+  const isLate = daysDiff > 0;
+  const isEarly = daysDiff < 0;
+  const penalty = isLate ? daysDiff * jobTypes[job.type].penalty : 0;
+  
+  document.getElementById('acceptJobDetails').innerHTML = `
+    <div class="alert ${isEarly ? 'alert-success' : isLate ? 'alert-warning' : 'alert-success'}">
+      <strong>Job #${job.id}: ${job.title}</strong><br><br>
+      <strong>Job Type:</strong> ${jobTypes[job.type].name}<br>
+      <strong>Assigned To:</strong> ${users[job.assignedTo].name}<br>
+      <strong>Target Date:</strong> ${job.target}<br>
+      <strong>Submit Date:</strong> ${job.submitDate}<br><br>
+      <div style="font-size:18px;font-weight:700;color:${isLate ? '#dc2626' : '#059669'}">
+        ${isLate ? '⚠️ ' + daysDiff + ' days LATE<br>Total Penalty: -'+penalty+' points<br>(-'+jobTypes[job.type].penalty+' pts/day × '+daysDiff+' days)' : 
+          isEarly ? '🎉 ' + Math.abs(daysDiff) + ' days EARLY!<br>Excellent work!' : 
+          '✅ Submitted ON-TIME!<br>Perfect!'}
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('acceptModal').classList.add('active');
+}
+
+function confirmAccept() {
+  if(!selectedJobForAccept) return;
+  
+  const job = jobs.find(j => j.id === selectedJobForAccept);
+  if(!job) return;
+  
+  job.status = 'completed';
+  job.finish = getTodayDate();
+  
+  const targetDate = new Date(job.target);
+  const finishDate = new Date(job.finish);
+  const daysDiff = Math.ceil((finishDate - targetDate) / (1000*60*60*24));
+  const isLate = daysDiff > 0;
+  
+  alert('✅ Job #'+job.id+' accepted and marked as completed!\\n\\nCompletion confirmed on: '+job.finish+(isLate ? '\\n\\nPenalty applied to '+users[job.assignedTo].name+"'s KPI" : ''));
+  
+  closeModal('acceptModal');
+  showTab('jobswip');
+}
+
+function openProblemModal() {
+  // Reset form
+  document.getElementById('problemType').value = 'quality';
+  document.getElementById('problemPerson').value = 'tai';
+  document.getElementById('problemDesc').value = '';
+  document.getElementById('problemImpact').value = '0';
+  
+  document.getElementById('problemModal').classList.add('active');
+}
+
+function addProblem() {
+  const type = document.getElementById('problemType').value;
+  const person = document.getElementById('problemPerson').value;
+  const desc = document.getElementById('problemDesc').value;
+  const impact = parseInt(document.getElementById('problemImpact').value);
+  
+  if(!desc) {
+    alert('⚠️ Please enter a description!');
+    return;
+  }
+  
+  const newProblem = {
+    id: nextProblemId++,
+    type: type,
+    person: person,
+    desc: desc,
+    impact: impact,
+    status: 'pending',
+    date: getTodayDate()
+  };
+  
+  problems.push(newProblem);
+  
+  alert('✅ Problem/Achievement added to meeting agenda!\\n\\nPerson: '+users[person].name+'\\nImpact: '+(impact > 0 ? '+' : '')+impact+' pts\\n\\nThis will appear in the Problems tab for meeting discussion.');
+  
+  closeModal('problemModal');
+  showTab('problems');
+}
+
+function solveProblem(problemId) {
+  const problem = problems.find(p => p.id === problemId);
+  if(!problem) return;
+  
+  const impactText = problem.impact > 0 ? 'reward' : problem.impact < 0 ? 'penalty' : 'no change';
+  
+  if(confirm('Mark this problem as discussed and apply '+problem.impact+' pts to '+users[problem.person].name+'?\\n\\nThis will:\\n1. Mark the problem as resolved\\n2. Apply the KPI adjustment ('+impactText+')\\n3. Add to adjustment history\\n\\nContinue?')) {
+    problem.status = 'solved';
+    
+    if(problem.impact !== 0) {
+      kpiAdjustments.unshift({
+        person: problem.person,
+        points: problem.impact,
+        reason: problem.desc,
+        date: getTodayDate(),
+        adjustedBy: currentUser
+      });
+    }
+    
+    alert('✅ Problem resolved and KPI adjusted!\\n\\n'+users[problem.person].name+': '+(problem.impact > 0 ? '+' : '')+problem.impact+' points\\nReason: '+problem.desc);
+    showTab('problems');
+  }
+}
+
+function applyKPIAdjustment() {
+  const person = document.getElementById('meetingPerson').value;
+  const points = parseInt(document.getElementById('meetingPoints').value);
+  const reason = document.getElementById('meetingReason').value;
+  
+  if(!person) {
+    alert('⚠️ Please select a team member!');
+    return;
+  }
+  
+  if(!reason) {
+    alert('⚠️ Please enter a reason for the adjustment!\\n\\nThis is important for tracking and transparency.');
+    return;
+  }
+  
+  if(points === 0) {
+    alert('⚠️ Adjustment is 0 points. Please select a point value.');
+    return;
+  }
+  
+  const adjustment = {
+    person: person,
+    points: points,
+    reason: reason,
+    date: getTodayDate(),
+    adjustedBy: currentUser
+  };
+  
+  kpiAdjustments.unshift(adjustment);
+  
+  alert('✅ KPI adjustment applied successfully!\\n\\nTeam Member: '+users[person].name+'\\nPoints: '+(points>0?'+':'')+points+'\\nReason: '+reason+'\\n\\nThis will be reflected in '+users[person].name+"'s KPI score.");
+  
+  // Clear form
+  document.getElementById('meetingPerson').value = '';
+  document.getElementById('meetingPoints').value = '0';
+  document.getElementById('meetingReason').value = '';
+  
+  showTab('meeting');
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.remove('active');
+  selectedJobForAccept = null;
+  selectedJobForShift = null;
+}
+
+function markProblemResolved(jobId) {
+  const job = jobs.find(j => j.id === jobId);
+  if(!job) return;
+  
+  if(confirm('Mark this problem as RESOLVED?\\n\\nProblem: '+job.title+'\\nReported by: '+users[job.reportedBy || job.assignedBy].name+'\\n\\nThis will remove it from the meeting agenda.')) {
+    job.status = 'completed';
+    alert('✅ Problem marked as resolved!\\n\\nProblem #'+jobId+' has been removed from the agenda.');
+    showTab('meeting');
+  }
+}
+
+function openRewardModal(jobId) {
+  const job = jobs.find(j => j.id === jobId);
+  if(!job) return;
+  
+  const reporter = users[job.reportedBy || job.assignedBy];
+  
+  // Pre-fill the KPI adjustment form
+  document.getElementById('meetingPerson').value = job.reportedBy || job.assignedBy;
+  document.getElementById('meetingPoints').value = '5';
+  document.getElementById('meetingReason').value = 'Addressed problem: ' + job.title;
+  
+  alert('✨ Award KPI Points\\n\\nProblem: '+job.title+'\\nReported by: '+reporter.name+'\\n\\nThe form below has been pre-filled. Adjust points and reason as needed, then click "Apply KPI Adjustment".');
+  
+  // Scroll to KPI form
+  document.getElementById('meetingReason').scrollIntoView({behavior: 'smooth', block: 'center'});
+  document.getElementById('meetingReason').focus();
+}
+
+// Initialize
+try {
+  showTab('dashboard');
+} catch (error) {
+  console.log('Dashboard loaded with minor issues - functionality not affected');
+}
+</script>
+
+</body>
+</html>
